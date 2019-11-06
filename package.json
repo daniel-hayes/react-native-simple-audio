@@ -19,15 +19,12 @@
     "name": "Daniel Hayes",
     "email": "dan.rdhayes@gmail.com"
   },
-  "license": "MIT",
-  "licenseFilename": "LICENSE",
-  "readmeFilename": "README.md",
   "peerDependencies": {
     "react": "^16.10.2",
-    "react-native": ">=0.61.0 <1.0.x"
+    "react-native": ">=0.61.2 <1.0.x"
   },
   "devDependencies": {
     "react": "^16.10.2",
-    "react-native": "^0.61.0"
+    "react-native": "^0.61.2"
   }
 }

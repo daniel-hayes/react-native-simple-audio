@@ -9,12 +9,11 @@ Pod::Spec.new do |s|
   s.description  = <<-DESC
                   react-native-simple-audio
                    DESC
-  s.homepage     = "https://github.com/daniel-hayes/react-native-simple-audio"
-  s.license      = "MIT"
-  # s.license    = { :type => "MIT", :file => "FILE_LICENSE" }
+  s.homepage     = package["repository"]["baseUrl"]
+  s.license    = { :type => "Apache License, Version 2.0", :file => "LICENSE" }
   s.authors      = { "Daniel Hayes" => "dan.rdhayes@gmail.com" }
-  s.platforms    = { :ios => "10.0", :tvos => "10.0" }
-  s.source       = { :git => "https://github.com/daniel-hayes/react-native-simple-audio.git", :tag => "#{s.version}" }
+  s.platforms    = { :ios => "10.0" }
+  s.source       = { :git => package["repository"]["url"], :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,swift}"
   s.requires_arc = true
