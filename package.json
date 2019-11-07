@@ -18,13 +18,5 @@
   "author": {
     "name": "Daniel Hayes",
     "email": "dan.rdhayes@gmail.com"
-  },
-  "peerDependencies": {
-    "react": "^16.10.2",
-    "react-native": ">=0.61.2 <1.0.x"
-  },
-  "devDependencies": {
-    "react": "^16.10.2",
-    "react-native": "^0.61.2"
   }
 }

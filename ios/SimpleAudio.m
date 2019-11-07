@@ -1,14 +1,11 @@
-#import "SimpleAudio.h"
+#import <React/RCTBridgeModule.h>
+#import <React/RCTEventEmitter.h>
 
+@interface RCT_EXTERN_MODULE(AudioPlayer, NSObject)
 
-@implementation SimpleAudio
-
-RCT_EXPORT_MODULE()
-
-RCT_EXPORT_METHOD(sampleMethod:(NSString *)stringArgument numberParameter:(nonnull NSNumber *)numberArgument callback:(RCTResponseSenderBlock)callback)
-{
-    // TODO: Implement some actually useful functionality
-	callback(@[[NSString stringWithFormat: @"numberArgument: %@ stringArgument: %@", numberArgument, stringArgument]]);
-}
+RCT_EXTERN_METHOD(prepare:(NSString *)path)
+RCT_EXTERN_METHOD(play)
+RCT_EXTERN_METHOD(pause)
+RCT_EXTERN_METHOD(jump:(NSInteger *)timeInSeconds shouldJumpBackwards:(BOOL *)backwards)
 
 @end
