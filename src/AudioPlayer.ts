@@ -1,5 +1,6 @@
-import { NativeEventEmitter, NativeModules } from 'react-native';
-const { AudioPlayer: RCTAudioPlayer } = NativeModules;
+import { NativeEventEmitter, NativeModules, EventSubscriptionVendor } from 'react-native';
+const RCTAudioPlayer:
+  NativePlayer & EventSubscriptionVendor = NativeModules.AudioPlayer;
 
 enum PlayerSetup {
   failed = -1,
@@ -13,9 +14,9 @@ interface StatusHandler {
 
 class AudioPlayer {
   url: string;
-  statusHandler: StatusHandler;
   status: PlayerStatus;
-  eventEmitter: NativeEventEmitter | undefined;
+  private statusHandler: StatusHandler;
+  private eventEmitter: NativeEventEmitter | undefined;
 
   constructor(url: string, statusHandler: StatusHandler) {
     this.url = url;
@@ -40,7 +41,7 @@ class AudioPlayer {
     this.statusHandler(this.status);
   }
 
-  handlePlayerStatusChanges = (body: string) => {
+  private handlePlayerStatusChanges = (body: string) => {
     if (body === 'PLAYER PLAYING') {
       this.setStatus({ isPlaying: true });
     }

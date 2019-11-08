@@ -1,0 +1,16 @@
+{
+  "roots": [
+    "<rootDir>/src"
+  ],
+  "testMatch": [
+    "**/*.test.(ts|tsx)"
+  ],
+  "testPathIgnorePatterns": [
+    "/node_modules/"
+  ],
+  "preset": "react-native",
+  "transform": {
+    "^.+\\.(ts|tsx)?$": "ts-jest",
+    "^.+\\.js$": "<rootDir>/node_modules/react-native/jest/preprocessor.js"
+  }
+}

@@ -8,7 +8,8 @@
     "clean": "rm -rf dist",
     "build": "yarn run clean && tsc",
     "watch": "tsc -w",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --config jest.config.json",
+    "test:watch": "jest --config jest.config.json --watch"
   },
   "repository": {
     "type": "git",
@@ -23,8 +24,13 @@
     "email": "dan.rdhayes@gmail.com"
   },
   "devDependencies": {
+    "@testing-library/react-hooks": "^3.2.1",
+    "@testing-library/react-native": "^5.0.0",
+    "@types/jest": "^24.0.22",
     "@types/react-native": "^0.60.22",
+    "jest": "^24.9.0",
     "react-native": "^0.61.4",
+    "ts-jest": "^24.1.0",
     "typescript": "^3.7.2"
   },
   "peerDependencies": {

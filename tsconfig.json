@@ -15,10 +15,12 @@
       "@types",
       "node_modules/@types"
     ],
+    "rootDir": "src",
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
   },
   "exclude": [
+    "node_modules",
     "src/**/*.test.ts"
   ]
 }
