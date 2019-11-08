@@ -4,7 +4,6 @@
 //
 //  Created by Daniel Hayes on 10/20/19.
 //
-//
 
 import AVFoundation
 
@@ -33,6 +32,10 @@ class AudioPlayer: RCTEventEmitter {
         static let failed = -1
         static let unknown = 0
         static let ready = 1
+    }
+    
+    @objc override static func requiresMainQueueSetup() -> Bool {
+        return false
     }
     
     @objc open override func supportedEvents() -> [String] {

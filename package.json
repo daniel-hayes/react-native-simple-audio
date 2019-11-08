@@ -3,6 +3,7 @@
   "title": "React Native Simple Audio",
   "version": "0.0.1",
   "description": "TODO",
+  "main": "dist/index.js",
   "scripts": {
     "clean": "rm -rf dist",
     "build": "yarn run clean && tsc",
