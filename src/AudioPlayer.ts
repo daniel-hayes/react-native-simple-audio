@@ -8,6 +8,11 @@ enum PlayerSetup {
   ready = 1
 };
 
+enum SupportedEvents {
+  initialize = 'initialize',
+  playerStatus = 'playerStatus'
+};
+
 interface StatusHandler {
   (status: PlayerStatus): void
 };
@@ -18,18 +23,22 @@ class AudioPlayer {
   private statusHandler: StatusHandler;
   private eventEmitter: NativeEventEmitter | undefined;
 
-  constructor(url: string, statusHandler: StatusHandler) {
+  constructor(
+    url: string,
+    statusHandler: StatusHandler,
+    eventEmitter: NativeEventEmitter = new NativeEventEmitter(RCTAudioPlayer)
+  ) {
     this.url = url;
 
     this.statusHandler = statusHandler;
+
+    this.eventEmitter = eventEmitter;
 
     this.status = {
       isReady: false,
       isPlaying: false,
       isLoading: false
     };
-
-    this.eventEmitter;
   }
 
   setStatus(changes: PlayerStatus) {
@@ -54,16 +63,15 @@ class AudioPlayer {
   create() {
     return new Promise((resolve, reject) => {
       RCTAudioPlayer.prepare(this.url);
-      this.eventEmitter = new NativeEventEmitter(RCTAudioPlayer);
 
       // set listener for all status changes other than setting up player
-      this.eventEmitter.addListener(
-        'playerStatus',
+      this.eventEmitter!.addListener(
+        SupportedEvents.playerStatus,
         this.handlePlayerStatusChanges
       );
 
       // wait for player to be created
-      this.eventEmitter.addListener('initialize', body => {
+      this.eventEmitter!.addListener(SupportedEvents.initialize, body => {
         if (body === PlayerSetup.ready) {
           this.setStatus({
             isReady: true,

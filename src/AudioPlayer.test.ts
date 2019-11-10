@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native';
+import { NativeModules, NativeEventEmitter } from 'react-native';
 import AudioPlayer from './AudioPlayer';
 
 jest.mock('react-native', () => {
@@ -7,7 +7,6 @@ jest.mock('react-native', () => {
   return {
     NativeEventEmitter,
     NativeModules: {
-      // @TODO how to include NativePlayer type here
       AudioPlayer: {
         play: jest.fn(),
         pause: jest.fn(),
@@ -17,10 +16,9 @@ jest.mock('react-native', () => {
       }
     }
   }
-})
+});
 
 describe('AudioPlayer', () => {
-
   const statusHandler = jest.fn();
   let player: AudioPlayer;
 
@@ -72,6 +70,54 @@ describe('AudioPlayer', () => {
     it('should call the jump method for going back', () => {
       player.seekBackwards(seconds);
       expect(NativeModules.AudioPlayer.jump).toHaveBeenCalledWith(seconds, true);
+    });
+  });
+
+  describe('create', () => {
+    let player: AudioPlayer;
+    let NativeEventEmitterMock = new NativeEventEmitter(NativeModules.AudioPlayer);
+
+    beforeEach(() => {
+      player = new AudioPlayer('foo.mp3', jest.fn(), NativeEventEmitterMock);
+    });
+
+    it('successfully creates a player', async () => {
+      const result = await new Promise((resolve) => {
+        // can't do this async/await because this should be non-blocking
+        // this needs to emit an event in the same test
+        player.create()
+          .then(() => {
+            resolve(player.status);
+          });
+
+        NativeEventEmitterMock.emit('initialize', 1);
+      });
+
+      expect(result).toMatchObject({
+        isReady: true,
+        isPlaying: false,
+        isLoading: false
+      });
+    });
+
+    it('fails to create a player', async () => {
+      const result = await new Promise((resolve) => {
+        // can't do this async/await because this should be non-blocking
+        // this needs to emit an event in the same test
+        player.create()
+          .catch(() => {
+            resolve(player.status);
+          });
+
+        NativeEventEmitterMock.emit('initialize', -1);
+      });
+
+      // @TODO figure out a better way to error handle this in implementation
+      expect(result).toMatchObject({
+        isReady: false,
+        isPlaying: false,
+        isLoading: false
+      });
     });
   });
 });
