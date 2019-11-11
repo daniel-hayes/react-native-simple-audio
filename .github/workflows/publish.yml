@@ -14,8 +14,9 @@ jobs:
     - run: |
         npm ci
         npm run test
-        npm run build
-        npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
-        npm publish
+        # @TODO figure out better way to auto-publish
+        # npm run build
+        # npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
+        # npm publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
