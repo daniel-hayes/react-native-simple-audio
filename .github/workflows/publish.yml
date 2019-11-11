@@ -1,0 +1,39 @@
+name: Publish
+on:
+  push:
+    branches:
+      - master
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - name: npm install, test and build
+      run: |
+        npm ci
+        npm run test
+  build:
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+      run: npm run build
+  publish:
+    needs: [test, build]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+      run: |
+        npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
+        npm run publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
