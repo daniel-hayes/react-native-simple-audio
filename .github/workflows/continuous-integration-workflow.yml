@@ -1,4 +1,4 @@
-name: Test, Build and Publish `react-native-simple-audio`
+name: Test and Build
 on: [push]
 jobs:
   build:
