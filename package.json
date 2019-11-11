@@ -1,7 +1,7 @@
 {
   "name": "react-native-simple-audio",
   "title": "React Native Simple Audio",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A simple react native audio module",
   "main": "dist/index.js",
   "scripts": {
