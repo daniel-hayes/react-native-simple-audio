@@ -1,6 +1,7 @@
 # react-native-simple-audio
 
 [![codecov](https://codecov.io/gh/daniel-hayes/react-native-simple-audio/branch/master/graph/badge.svg)](https://codecov.io/gh/daniel-hayes/react-native-simple-audio)
+[![npm version](https://badge.fury.io/js/react-native-simple-audio.svg)](https://badge.fury.io/js/react-native-simple-audio)
 
 ## Install
 `yarn add react-native-simple-audio`
