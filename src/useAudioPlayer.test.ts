@@ -81,4 +81,28 @@ describe('useAudioPlayer', () => {
     expect(result.current[1]).toMatch('Error');
   });
 
+  it('should cleanup after unmounting', async () => {
+    // @ts-ignore
+    AudioPlayer.mockImplementationOnce(() => {
+      return {
+        create: jest.fn(),
+        destroy: jest.fn(),
+        status: {
+          isLoading: false,
+          isReady: true,
+        }
+      }
+    });
+
+    const { result, waitForNextUpdate, unmount } = renderHook(() =>
+      useAudioPlayer('foo.mp3')
+    );
+
+    await waitForNextUpdate();
+
+    // test cleanup method
+    unmount();
+
+    expect(result.current[0].destroy).toHaveBeenCalled();
+  });
 });

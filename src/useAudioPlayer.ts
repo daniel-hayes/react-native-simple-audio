@@ -34,14 +34,22 @@ const useAudioPlayer = (url: string) => {
     }
   }, [url, status]);
 
-  // @TODO figure out when to call
-  // player.destroy()
+  // call on unmount
+  useEffect(() => (
+    () => {
+      if (player.destroy) {
+        // remove all listeners
+        player.destroy();
+      }
+    }
+  ), [player]);
 
   const playerController = {
     status,
     toggleAudio: player.toggleAudio,
     seekForwards: player.seekForwards,
-    seekBackwards: player.seekBackwards
+    seekBackwards: player.seekBackwards,
+    destroy: player.destroy
   };
 
   return [playerController, error];
