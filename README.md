@@ -6,26 +6,15 @@
 ### iOS
 `cd ios && pod install && cd .. # CocoaPods on iOS needs this extra step`
 
-## Run
-`yarn react-native run-ios`
+#### Run
+`react-native run-ios`
+or
+1. `xed -b ios`
+2. Run project in Xcode
 
-### Manual installation
+### Android
 
-#### Android
-
-1. Open up `android/app/src/main/java/[...]/MainApplication.java`
-  - Add `import com.reactlibrary.SimpleAudioPackage;` to the imports at the top of the file
-  - Add `new SimpleAudioPackage()` to the list returned by the `getPackages()` method
-2. Append the following lines to `android/settings.gradle`:
-  	```
-  	include ':react-native-simple-audio'
-  	project(':react-native-simple-audio').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-simple-audio/android')
-  	```
-3. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
-  	```
-      compile project(':react-native-simple-audio')
-  	```
-
+COMING SOON
 
 ## Example usage
 ```javascript
@@ -41,6 +30,7 @@ export const Player = ({ url }) => {
   const [player, error] = useAudioPlayer(url);
 
   if (error) {
+		// handle error
     console.log(error);
   }
 
@@ -71,7 +61,14 @@ export const Player = ({ url }) => {
   )
 };
 
-...
+............
 
 <Player url="www.site.com/foo.mp3">
 ```
+
+
+## TODO
+- add ability to seek through audio
+- add full example
+- Add hook to record audio
+- Add Android functionality
