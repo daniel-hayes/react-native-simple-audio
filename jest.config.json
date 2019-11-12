@@ -12,5 +12,8 @@
   "transform": {
     "^.+\\.(ts|tsx)?$": "ts-jest",
     "^.+\\.js$": "<rootDir>/node_modules/react-native/jest/preprocessor.js"
-  }
+  },
+  "collectCoverageFrom": [
+    "src/**/*.ts"
+  ]
 }
