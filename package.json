@@ -32,6 +32,7 @@
     "name": "Daniel Hayes",
     "email": "dan.rdhayes@gmail.com"
   },
+  "license": "Apache-2.0",
   "devDependencies": {
     "@testing-library/react-hooks": "^3.2.1",
     "@types/jest": "^24.0.22",
