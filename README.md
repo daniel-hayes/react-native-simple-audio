@@ -1,22 +1,15 @@
 # react-native-simple-audio
 
-## Getting started
+## Install
+`yarn add react-native-simple-audio`
 
-`$ npm install react-native-simple-audio --save`
+### iOS
+`cd ios && pod install && cd .. # CocoaPods on iOS needs this extra step`
 
-### Mostly automatic installation
-
-`$ react-native link react-native-simple-audio`
+## Run
+`yarn react-native run-ios`
 
 ### Manual installation
-
-
-#### iOS
-
-1. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
-2. Go to `node_modules` ➜ `react-native-simple-audio` and add `SimpleAudio.xcodeproj`
-3. In XCode, in the project navigator, select your project. Add `libSimpleAudio.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
-4. Run your project (`Cmd+R`)<
 
 #### Android
 
@@ -34,10 +27,51 @@
   	```
 
 
-## Usage
+## Example usage
 ```javascript
-import SimpleAudio from 'react-native-simple-audio';
+import {
+  ActivityIndicator,
+  Button,
+  View,
+} from 'react-native';
 
-// TODO: What to do with the module?
-SimpleAudio;
+import { useAudioPlayer } from 'react-native-simple-audio';
+
+export const Player = ({ url }) => {
+  const [player, error] = useAudioPlayer(url);
+
+  if (error) {
+    console.log(error);
+  }
+
+  return (
+    <View>
+      {player.status.isLoading && !player.status.isReady ? (
+        <ActivityIndicator size="large" />
+      ) : (
+          <>
+            <Button
+              title={`${player.status.isPlaying ? 'Pause' : 'Play'}`}
+              color="#f194ff"
+              onPress={player.toggleAudio}
+            />
+            <Button
+              title="Back 20 seconds"
+              color="#f194ff"
+              onPress={() => player.seekBackwards(20)}
+            />
+            <Button
+              title="Forward 20 seconds"
+              color="#f194ff"
+              onPress={() => player.seekForwards(20)}
+            />
+          </>
+        )}
+    </View>
+  )
+};
+
+...
+
+<Player url="www.site.com/foo.mp3">
 ```

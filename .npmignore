@@ -4,6 +4,7 @@
 src/
 tsconfig.json
 jest.config.json
+coverage
 
 # Misc
 #
