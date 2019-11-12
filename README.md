@@ -71,8 +71,8 @@ export const Player = ({ url }) => {
   )
 };
 
-// Player component usage
-<Player url="www.site.com/foo.mp3">
+// Player component usage with remote url
+<Player url="www.site.com/foo.mp3" />
 ```
 
 

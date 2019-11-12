@@ -109,9 +109,9 @@ class AudioPlayer {
   };
 
   destroy() {
-    // @TODO add destroy method to Swift file
     if (this.eventEmitter) {
-      this.eventEmitter.removeAllListeners();
+      this.eventEmitter.removeAllListeners(SupportedEvents.playerStatus);
+      this.eventEmitter.removeAllListeners(SupportedEvents.initialize);
     }
   }
 }

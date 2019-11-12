@@ -25,7 +25,6 @@ const useAudioPlayer = (url: string) => {
           setError('Error');
         }
       } catch (err) {
-        console.log(err);
         setError('Error');
       }
     }

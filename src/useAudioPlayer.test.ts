@@ -63,4 +63,22 @@ describe('useAudioPlayer', () => {
     expect(result.current[1]).toMatch('Error');
   });
 
+  it('should throw an error', async () => {
+    // @ts-ignore
+    AudioPlayer.mockImplementationOnce(() => {
+      return {
+        create: jest.fn().mockRejectedValue(new Error('error')),
+        status: {}
+      }
+    });
+
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useAudioPlayer('foo.mp3')
+    );
+
+    expect(result.current[0].status).toMatchObject({ isLoading: true });
+    await waitForNextUpdate();
+    expect(result.current[1]).toMatch('Error');
+  });
+
 });

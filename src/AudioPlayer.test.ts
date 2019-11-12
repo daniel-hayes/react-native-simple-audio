@@ -12,7 +12,8 @@ jest.mock('react-native', () => {
         pause: jest.fn(),
         prepare: jest.fn(),
         jump: jest.fn(),
-        addListener: jest.fn()
+        addListener: jest.fn(),
+        removeListeners: jest.fn(),
       }
     }
   }
@@ -20,10 +21,11 @@ jest.mock('react-native', () => {
 
 describe('AudioPlayer', () => {
   const statusHandler = jest.fn();
+  let NativeEventEmitterMock = new NativeEventEmitter(NativeModules.AudioPlayer);
   let player: AudioPlayer;
 
   beforeEach(() => {
-    player = new AudioPlayer('foo.mp3', statusHandler);
+    player = new AudioPlayer('foo.mp3', statusHandler, NativeEventEmitterMock);
     statusHandler.mockReset();
   });
 
@@ -74,13 +76,6 @@ describe('AudioPlayer', () => {
   });
 
   describe('create', () => {
-    let player: AudioPlayer;
-    let NativeEventEmitterMock = new NativeEventEmitter(NativeModules.AudioPlayer);
-
-    beforeEach(() => {
-      player = new AudioPlayer('foo.mp3', jest.fn(), NativeEventEmitterMock);
-    });
-
     it('successfully creates a player', async () => {
       const result = await new Promise((resolve) => {
         // can't do this async/await because this should be non-blocking
@@ -118,6 +113,23 @@ describe('AudioPlayer', () => {
         isPlaying: false,
         isLoading: false
       });
+    });
+  });
+
+  describe('destroy', () => {
+    it('should remove all event emitters', () => {
+      const [initialize, playerStatus] = ['initialize', 'playerStatus'];
+
+      NativeEventEmitterMock.addListener(playerStatus, jest.fn);
+      NativeEventEmitterMock.addListener(initialize, jest.fn);
+
+      expect(NativeEventEmitterMock.listeners(playerStatus)).toHaveLength;
+      expect(NativeEventEmitterMock.listeners(initialize)).toHaveLength;
+
+      player.destroy();
+
+      expect(NativeEventEmitterMock.listeners(playerStatus)).toHaveLength(0);
+      expect(NativeEventEmitterMock.listeners(initialize)).toHaveLength(0);
     });
   });
 });
