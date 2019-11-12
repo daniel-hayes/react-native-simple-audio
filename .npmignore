@@ -5,6 +5,7 @@ src/
 tsconfig.json
 jest.config.json
 coverage
+TODO.md
 
 # Misc
 #
