@@ -62,7 +62,11 @@ class AudioPlayer {
 
   create() {
     return new Promise((resolve, reject) => {
-      RCTAudioPlayer.prepare(this.url);
+      const error = RCTAudioPlayer.prepare(this.url);
+
+      if (error) {
+        reject();
+      }
 
       // set listener for all status changes other than setting up player
       this.eventEmitter!.addListener(
@@ -112,6 +116,7 @@ class AudioPlayer {
     if (this.eventEmitter) {
       this.eventEmitter.removeAllListeners(SupportedEvents.playerStatus);
       this.eventEmitter.removeAllListeners(SupportedEvents.initialize);
+      RCTAudioPlayer.destroy();
     }
   }
 }

@@ -1,5 +1,6 @@
 # Project specific
 #
+.github
 @types/
 src/
 tsconfig.json

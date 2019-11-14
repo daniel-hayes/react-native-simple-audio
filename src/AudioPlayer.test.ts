@@ -12,6 +12,7 @@ jest.mock('react-native', () => {
         pause: jest.fn(),
         prepare: jest.fn(),
         jump: jest.fn(),
+        destroy: jest.fn(),
         addListener: jest.fn(),
         removeListeners: jest.fn(),
       }
@@ -130,6 +131,11 @@ describe('AudioPlayer', () => {
 
       expect(NativeEventEmitterMock.listeners(playerStatus)).toHaveLength(0);
       expect(NativeEventEmitterMock.listeners(initialize)).toHaveLength(0);
+    });
+
+    it('should destroy the native player', () => {
+      player.destroy();
+      expect(NativeModules.AudioPlayer.destroy).toHaveBeenCalled();
     });
   });
 });

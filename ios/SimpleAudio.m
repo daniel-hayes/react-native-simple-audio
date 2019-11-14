@@ -6,6 +6,7 @@
 RCT_EXTERN_METHOD(prepare:(NSString *)path)
 RCT_EXTERN_METHOD(play)
 RCT_EXTERN_METHOD(pause)
+RCT_EXTERN_METHOD(destroy)
 RCT_EXTERN_METHOD(jump:(NSInteger *)timeInSeconds shouldJumpBackwards:(BOOL *)backwards)
 
 @end

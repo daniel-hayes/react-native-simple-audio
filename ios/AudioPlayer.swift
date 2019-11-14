@@ -43,16 +43,13 @@ class AudioPlayer: RCTEventEmitter {
     }
     
     @objc(prepare:)
-    func prepare(path: String) -> Void {
+    func prepare(path: String) -> String? {
         guard let url = URL(string: path) else {
-            
-            // @TODO handle error
-            print("Invalid URL")
-            return
+            // handle error
+            return "Not a valid url path"
         }
         
         // Create asset to be played
-        //    asset = AVAsset(url: url)
         asset = AVAsset(url: url)
         
         // Create a new AVPlayerItem with the asset and an
@@ -66,6 +63,8 @@ class AudioPlayer: RCTEventEmitter {
         player.automaticallyWaitsToMinimizeStalling = false
         
         self.addObservers()
+        
+        return nil
     }
     
     @objc(play)
@@ -92,15 +91,10 @@ class AudioPlayer: RCTEventEmitter {
             switch playerItem.status {
             case .readyToPlay:
                 self.sendEvent(withName: SupportedEvents.initialize, body: PlayerStatus.ready)
-                print("ready to play")
             case .failed:
                 self.sendEvent(withName: SupportedEvents.initialize, body: PlayerStatus.failed)
-                // @TODO put better error handling here
-                print("player failed to load")
-                return
             case .unknown:
                 self.sendEvent(withName: SupportedEvents.initialize, body: PlayerStatus.unknown)
-                print("unknown player status")
             default:
                 print("waiting for status change")
             }
@@ -108,50 +102,47 @@ class AudioPlayer: RCTEventEmitter {
         
         // listening for buffer changes
         emptyBufferObserver = player.currentItem!.observe(\.isPlaybackBufferEmpty, options: [.new]) { (playerItem, change) in
-            print("buffering...")
             self.sendEvent(withName: SupportedEvents.playerStatus, body: "BUFFERING")
         }
         
         playbackLikelyObserver = player.currentItem!.observe(\.isPlaybackLikelyToKeepUp, options: [.new]) { (playerItem, change) in
-            print("buffering ends...")
-            
+            // @TODO should this change to player not playerItem?
             if playerItem.isPlaybackLikelyToKeepUp {
-                print("DONE")
                 self.sendEvent(withName: SupportedEvents.playerStatus, body: "PLAYER DONE")
             }
         }
         
-        timeControlStatusObserver = player.observe(\.timeControlStatus, options: [.new, .old], changeHandler: { (playerItem, change) in
-            switch (playerItem.timeControlStatus) {
-            case AVPlayerTimeControlStatus.paused:
-                print("Media Paused")
+        timeControlStatusObserver = player.observe(\.timeControlStatus, options: [.new, .old], changeHandler: { (player, change) in
+            switch (player.timeControlStatus) {
+            case AVPlayer.TimeControlStatus.paused:
                 self.sendEvent(withName: SupportedEvents.playerStatus, body: "PLAYER PAUSED")
-                
-            case AVPlayerTimeControlStatus.playing:
-                print("Media Playing")
+            case AVPlayer.TimeControlStatus.playing:
                 self.sendEvent(withName: SupportedEvents.playerStatus, body: "PLAYER PLAYING")
-                
-            case AVPlayerTimeControlStatus.waitingToPlayAtSpecifiedRate:
-                print("Media Waiting to play at specific rate!")
+            case AVPlayer.TimeControlStatus.waitingToPlayAtSpecifiedRate:
                 self.sendEvent(withName: SupportedEvents.playerStatus, body: "PLAYER WAITING")
-                
             default:
                 print("no changes")
             }
         })
-        
-        waitingObserver = player.observe(\.reasonForWaitingToPlay, options: [.new, .old], changeHandler: { (playerItem, change) in
-            print("REASON FOR WAITING TO PLAY: ", playerItem.reasonForWaitingToPlay?.rawValue as Any)
+
+        waitingObserver = player.observe(\.reasonForWaitingToPlay, options: [.new, .old], changeHandler: { (player, change) in
+            // @TODO what to do here
+            print("Reason for waiting: ", player.reasonForWaitingToPlay?.rawValue as Any)
         })
-        //    @TODO what happens when audio is done playing?
+    }
+    
+    @objc(destroy)
+    func destroy() -> Void {
+        player.pause()
+        player.replaceCurrentItem(with: nil)
     }
     
     private func removeObservers() {
-        //    statusObserver?.invalidate()
-        //    emptyBufferObserver?.invalidate()
-        //    playbackLikelyObserver?.invalidate()
-        //    timeControlStatusObserver?.invalidate()
-        //    waitingObserver?.invalidate()
+        statusObserver?.invalidate()
+        emptyBufferObserver?.invalidate()
+        playbackLikelyObserver?.invalidate()
+        timeControlStatusObserver?.invalidate()
+        waitingObserver?.invalidate()
     }
     
     deinit {
