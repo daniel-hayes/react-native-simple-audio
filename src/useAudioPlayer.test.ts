@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks';
 import AudioPlayer from './AudioPlayer';
-import useAudioPlayer from './useAudioPlayer';
+import useAudioPlayer, { playerSetupError } from './useAudioPlayer';
 
 jest.mock('./AudioPlayer');
 
@@ -60,7 +60,7 @@ describe('useAudioPlayer', () => {
 
     expect(result.current[0].status).toMatchObject({ isLoading: true });
     await waitForNextUpdate();
-    expect(result.current[1]).toMatch('Error');
+    expect(result.current[1]).toMatch(playerSetupError);
   });
 
   it('should throw an error', async () => {
@@ -78,7 +78,7 @@ describe('useAudioPlayer', () => {
 
     expect(result.current[0].status).toMatchObject({ isLoading: true });
     await waitForNextUpdate();
-    expect(result.current[1]).toMatch('Error');
+    expect(result.current[1]).toMatch(playerSetupError);
   });
 
   it('should cleanup after unmounting', async () => {

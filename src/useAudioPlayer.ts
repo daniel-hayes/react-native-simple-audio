@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import AudioPlayer from './AudioPlayer';
 
+export const playerSetupError = 'There was a problem setting up the player';
+
 // @TODO make this a custom type for local/remote urls
 const useAudioPlayer = (url: string) => {
   const [player, setPlayer] = useState({} as AudioPlayer);
@@ -22,10 +24,10 @@ const useAudioPlayer = (url: string) => {
 
         // find a better way to handle this error
         if (!nativePlayer.status.isReady) {
-          setError('Error');
+          setError(playerSetupError);
         }
       } catch (err) {
-        setError('Error');
+        setError(playerSetupError);
       }
     }
 

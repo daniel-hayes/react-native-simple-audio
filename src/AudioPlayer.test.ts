@@ -115,6 +115,18 @@ describe('AudioPlayer', () => {
         isLoading: false
       });
     });
+
+    it('should handle errors if url is not valid', async () => {
+      NativeModules.AudioPlayer.prepare.mockReturnValueOnce('native url error');
+
+      await expect(player.create()).rejects.toBeUndefined();
+
+      expect(player.status).toMatchObject({
+        isReady: false,
+        isPlaying: false,
+        isLoading: false
+      });
+    });
   });
 
   describe('destroy', () => {

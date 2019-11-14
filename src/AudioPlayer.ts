@@ -62,9 +62,14 @@ class AudioPlayer {
 
   create() {
     return new Promise((resolve, reject) => {
-      const error = RCTAudioPlayer.prepare(this.url);
+      const urlError = RCTAudioPlayer.prepare(this.url);
 
-      if (error) {
+      if (urlError) {
+        // problem with URL and player was never created
+        this.setStatus({
+          isLoading: false
+        });
+
         reject();
       }
 
