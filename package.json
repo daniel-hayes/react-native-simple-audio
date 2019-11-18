@@ -10,7 +10,8 @@
     "watch": "tsc -w",
     "typecheck": "tsc --noEmit",
     "test": "npm run typecheck && jest --config jest.config.json --coverage",
-    "test:watch": "jest --config jest.config.json --watch"
+    "test:watch": "jest --config jest.config.json --watch",
+    "prepublish": "npm run test && npm run build"
   },
   "repository": {
     "type": "git",

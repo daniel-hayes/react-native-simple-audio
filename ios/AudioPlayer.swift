@@ -144,7 +144,6 @@ class AudioPlayer: RCTEventEmitter {
         }
         
         timeControlStatusObserver = player.observe(\.timeControlStatus, options: [.new, .old], changeHandler: { (player, change) in
-            print(player.timeControlStatus)
             switch (player.timeControlStatus) {
             case AVPlayer.TimeControlStatus.paused:
                 self.sendEvent(withName: SupportedEvents.playerItemStatus, body: PlayerItemStatus.paused)
