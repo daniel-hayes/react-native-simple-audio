@@ -1,16 +1,31 @@
 import { NativeEventEmitter, NativeModules, EventSubscriptionVendor } from 'react-native';
+
 const RCTAudioPlayer:
   NativePlayer & EventSubscriptionVendor = NativeModules.AudioPlayer;
 
-enum PlayerSetup {
+enum PlayerSetupStatus {
   failed = -1,
   unknown = 0,
   ready = 1
 };
 
+enum PlayerItemStatus {
+  buffering = 0,
+  buffered = 1,
+  playing = 2,
+  paused = 3,
+  waiting = 4
+};
+
+enum PlayerInfo {
+  currentTime = 'currentTime',
+  duration = 'duration'
+};
+
 enum SupportedEvents {
-  initialize = 'initialize',
-  playerStatus = 'playerStatus'
+  playerStatus = 'playerStatus',
+  playerItemStatus = 'playerItemStatus',
+  playerInfo = 'playerInfo'
 };
 
 interface StatusHandler {
@@ -35,10 +50,19 @@ class AudioPlayer {
     this.eventEmitter = eventEmitter;
 
     this.status = {
-      isReady: false,
-      isPlaying: false,
-      isLoading: false
+      ready: false,
+      playing: false,
+      loading: false,
+      duration: this.playerStartingTime,
+      currentTime: this.playerStartingTime
     };
+  }
+
+  get playerStartingTime() {
+    return {
+      seconds: 0,
+      formatted: '0:00'
+    }
   }
 
   setStatus(changes: PlayerStatus) {
@@ -50,13 +74,33 @@ class AudioPlayer {
     this.statusHandler(this.status);
   }
 
-  private handlePlayerStatusChanges = (body: string) => {
-    if (body === 'PLAYER PLAYING') {
-      this.setStatus({ isPlaying: true });
+  private formatTime = (timeInseconds: number) => {
+    const minutes = Math.floor(timeInseconds / 60);
+    const seconds = Math.floor(timeInseconds % 60);
+
+    return {
+      seconds: timeInseconds,
+      formatted: `${minutes}:${(seconds < 10 ? '0' : '') + seconds}`
+    }
+  }
+
+  private handlePlayerItemStatusChanges = (body: number) => {
+    if (body === PlayerItemStatus.playing) {
+      this.setStatus({ playing: true });
     }
 
-    if (body === 'PLAYER PAUSED') {
-      this.setStatus({ isPlaying: false });
+    if (body === PlayerItemStatus.paused) {
+      this.setStatus({ playing: false });
+    }
+  };
+
+  private handlePlayerInfo = (body: EventBody) => {
+    if (body.eventName === PlayerInfo.duration) {
+      this.setStatus({ duration: this.formatTime(body.value) });
+    }
+
+    if (body.eventName === PlayerInfo.currentTime) {
+      this.setStatus({ currentTime: this.formatTime(body.value) });
     }
   };
 
@@ -67,32 +111,38 @@ class AudioPlayer {
       if (urlError) {
         // problem with URL and player was never created
         this.setStatus({
-          isLoading: false
+          loading: false
         });
 
         reject();
       }
 
-      // set listener for all status changes other than setting up player
+      // set listener for all status changes on the asset
       this.eventEmitter!.addListener(
-        SupportedEvents.playerStatus,
-        this.handlePlayerStatusChanges
+        SupportedEvents.playerItemStatus,
+        this.handlePlayerItemStatusChanges
+      );
+
+      // set listener for getting player info
+      this.eventEmitter!.addListener(
+        SupportedEvents.playerInfo,
+        this.handlePlayerInfo
       );
 
       // wait for player to be created
-      this.eventEmitter!.addListener(SupportedEvents.initialize, body => {
-        if (body === PlayerSetup.ready) {
+      this.eventEmitter!.addListener(SupportedEvents.playerStatus, (body: number) => {
+        if (body === PlayerSetupStatus.ready) {
           this.setStatus({
-            isReady: true,
-            isLoading: false
+            ready: true,
+            loading: false
           });
 
           resolve();
         }
 
-        if (body === PlayerSetup.failed) {
+        if (body === PlayerSetupStatus.failed) {
           this.setStatus({
-            isLoading: false
+            loading: false
           });
 
           reject();
@@ -102,7 +152,7 @@ class AudioPlayer {
   }
 
   toggleAudio = () => {
-    if (this.status.isPlaying) {
+    if (this.status.playing) {
       RCTAudioPlayer.pause();
     } else {
       RCTAudioPlayer.play();
@@ -120,7 +170,9 @@ class AudioPlayer {
   destroy() {
     if (this.eventEmitter) {
       this.eventEmitter.removeAllListeners(SupportedEvents.playerStatus);
-      this.eventEmitter.removeAllListeners(SupportedEvents.initialize);
+      this.eventEmitter.removeAllListeners(SupportedEvents.playerItemStatus);
+      this.eventEmitter.removeAllListeners(SupportedEvents.playerInfo);
+
       RCTAudioPlayer.destroy();
     }
   }

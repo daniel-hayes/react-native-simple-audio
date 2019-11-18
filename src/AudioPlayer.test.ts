@@ -33,7 +33,7 @@ describe('AudioPlayer', () => {
   describe('setStatus', () => {
     it('should update local status', () => {
       const initialStatus = player.status;
-      const updatedStatus = { isReady: true }
+      const updatedStatus = { ready: true }
       player.setStatus(updatedStatus);
       expect(player.status).not.toEqual(initialStatus);
       expect(player.status).toEqual({ ...initialStatus, ...updatedStatus });
@@ -52,7 +52,7 @@ describe('AudioPlayer', () => {
     });
 
     it('should pause the audio', () => {
-      player.setStatus({ isPlaying: true });
+      player.setStatus({ playing: true });
       player.toggleAudio();
       expect(NativeModules.AudioPlayer.pause).toHaveBeenCalled();
     });
@@ -86,13 +86,13 @@ describe('AudioPlayer', () => {
             resolve(player.status);
           });
 
-        NativeEventEmitterMock.emit('initialize', 1);
+        NativeEventEmitterMock.emit('playerStatus', 1);
       });
 
       expect(result).toMatchObject({
-        isReady: true,
-        isPlaying: false,
-        isLoading: false
+        ready: true,
+        playing: false,
+        loading: false
       });
     });
 
@@ -105,14 +105,14 @@ describe('AudioPlayer', () => {
             resolve(player.status);
           });
 
-        NativeEventEmitterMock.emit('initialize', -1);
+        NativeEventEmitterMock.emit('playerStatus', -1);
       });
 
       // @TODO figure out a better way to error handle this in implementation
       expect(result).toMatchObject({
-        isReady: false,
-        isPlaying: false,
-        isLoading: false
+        ready: false,
+        playing: false,
+        loading: false
       });
     });
 
@@ -122,27 +122,67 @@ describe('AudioPlayer', () => {
       await expect(player.create()).rejects.toBeUndefined();
 
       expect(player.status).toMatchObject({
-        isReady: false,
-        isPlaying: false,
-        isLoading: false
+        ready: false,
+        playing: false,
+        loading: false
       });
+    });
+  });
+
+  describe('formatTime', () => {
+    it('returns a duration under a minute', () => {
+      // @ts-ignore
+      expect(player.formatTime(10)).toEqual({ seconds: 10, formatted: '0:10' });
+    });
+
+    it('returns a duration over a minute', () => {
+      // @ts-ignore
+      expect(player.formatTime(61)).toEqual({ seconds: 61, formatted: '1:01' });
+    });
+
+    it('returns a long duration', () => {
+      // @ts-ignore
+      expect(player.formatTime(4004)).toEqual({ seconds: 4004, formatted: '66:44' });
+    });
+  });
+
+  describe('handlePlayerInfo', () => {
+    it('should set the duration status', () => {
+      expect(player.status.duration).toMatchObject({ seconds: 0, formatted: '0:00' });
+
+      // @ts-ignore
+      player.handlePlayerInfo({ eventName: 'duration', value: 123 })
+
+      expect(Object.keys(player.status.duration!)).toEqual(['seconds', 'formatted']);
+    });
+
+    it('should set the currentTime status', () => {
+      expect(player.status.currentTime).toMatchObject({ seconds: 0, formatted: '0:00' });
+
+      // @ts-ignore
+      player.handlePlayerInfo({ eventName: 'currentTime', value: 123 })
+
+      expect(Object.keys(player.status.currentTime!)).toEqual(['seconds', 'formatted']);
     });
   });
 
   describe('destroy', () => {
     it('should remove all event emitters', () => {
-      const [initialize, playerStatus] = ['initialize', 'playerStatus'];
+      const [playerStatus, playerItemStatus, playerInfo] = ['playerStatus', 'playerItemStatus', 'playerInfo'];
 
       NativeEventEmitterMock.addListener(playerStatus, jest.fn);
-      NativeEventEmitterMock.addListener(initialize, jest.fn);
+      NativeEventEmitterMock.addListener(playerItemStatus, jest.fn);
+      NativeEventEmitterMock.addListener(playerInfo, jest.fn);
 
       expect(NativeEventEmitterMock.listeners(playerStatus)).toHaveLength;
-      expect(NativeEventEmitterMock.listeners(initialize)).toHaveLength;
+      expect(NativeEventEmitterMock.listeners(playerItemStatus)).toHaveLength;
+      expect(NativeEventEmitterMock.listeners(playerInfo)).toHaveLength;
 
       player.destroy();
 
       expect(NativeEventEmitterMock.listeners(playerStatus)).toHaveLength(0);
-      expect(NativeEventEmitterMock.listeners(initialize)).toHaveLength(0);
+      expect(NativeEventEmitterMock.listeners(playerItemStatus)).toHaveLength(0);
+      expect(NativeEventEmitterMock.listeners(playerInfo)).toHaveLength(0);
     });
 
     it('should destroy the native player', () => {

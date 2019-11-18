@@ -32,6 +32,7 @@ import {
   ActivityIndicator,
   Button,
   View,
+  Text
 } from 'react-native';
 
 import { useAudioPlayer } from 'react-native-simple-audio';
@@ -46,12 +47,12 @@ export const Player = ({ url }) => {
 
   return (
     <View>
-      {player.status.isLoading && !player.status.isReady ? (
+      {player.status.loading && !player.status.ready ? (
         <ActivityIndicator size="large" />
       ) : (
           <>
             <Button
-              title={`${player.status.isPlaying ? 'Pause' : 'Play'}`}
+              title={`${player.status.playing ? 'Pause' : 'Play'}`}
               color="#f194ff"
               onPress={player.toggleAudio}
             />
@@ -65,6 +66,10 @@ export const Player = ({ url }) => {
               color="#f194ff"
               onPress={() => player.seekForwards(20)}
             />
+            <Text>
+            {player.status.currentTime.formatted} - 
+            {player.status.duration.formatted}
+            </Text>
           </>
         )}
     </View>

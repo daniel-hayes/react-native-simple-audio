@@ -7,7 +7,20 @@ declare interface NativePlayer {
 }
 
 declare interface PlayerStatus {
-  isReady?: boolean,
-  isPlaying?: boolean,
-  isLoading?: boolean,
+  ready?: boolean,
+  playing?: boolean,
+  loading?: boolean,
+  currentTime?: {
+    seconds: number,
+    formatted: string
+  },
+  duration?: {
+    seconds: number,
+    formatted: string
+  }
+}
+
+declare interface EventBody {
+  eventName: string,
+  value: any
 }
