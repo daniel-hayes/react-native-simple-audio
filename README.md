@@ -32,6 +32,7 @@ import {
   ActivityIndicator,
   Button,
   View,
+  Text
 } from 'react-native';
 
 import { useAudioPlayer } from 'react-native-simple-audio';
@@ -65,6 +66,10 @@ export const Player = ({ url }) => {
               color="#f194ff"
               onPress={() => player.seekForwards(20)}
             />
+            <Text>
+            {player.status.currentTime.formatted} - 
+            {player.status.duration.formatted}
+            </Text>
           </>
         )}
     </View>
