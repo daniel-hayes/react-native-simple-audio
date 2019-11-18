@@ -129,15 +129,31 @@ describe('AudioPlayer', () => {
     });
   });
 
+  describe('getDuration', () => {
+    it('returns a duration under a minute', () => {
+      // @ts-ignore
+      expect(player.getDuration(10)).toEqual({ seconds: 10, formatted: '0:10' });
+    });
+
+    it('returns a duration over a minute', () => {
+      // @ts-ignore
+      expect(player.getDuration(61)).toEqual({ seconds: 61, formatted: '1:01' });
+    });
+
+    it('returns a long duration', () => {
+      // @ts-ignore
+      expect(player.getDuration(4004)).toEqual({ seconds: 4004, formatted: '66:44' });
+    });
+  });
+
   describe('handlePlayerInfo', () => {
-    it('should set the duration', () => {
-      expect(player.status.duration).toBe(0);
+    it('should set the duration status', () => {
+      expect(player.status.duration).toMatchObject({});
 
       // @ts-ignore
-      // ignoring to test private method
       player.handlePlayerInfo({ eventName: 'duration', value: 123 })
 
-      expect(player.status.duration).toBe(123);
+      expect(Object.keys(player.status.duration!)).toEqual(['seconds', 'formatted']);
     });
   });
 

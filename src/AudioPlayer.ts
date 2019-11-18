@@ -52,7 +52,7 @@ class AudioPlayer {
       ready: false,
       playing: false,
       loading: false,
-      duration: 0
+      duration: {}
     };
   }
 
@@ -63,6 +63,16 @@ class AudioPlayer {
     };
 
     this.statusHandler(this.status);
+  }
+
+  private getDuration = (durationInSeconds: number) => {
+    const minutes = Math.floor(durationInSeconds / 60);
+    const seconds = Math.floor(durationInSeconds % 60);
+
+    return {
+      seconds: durationInSeconds,
+      formatted: `${minutes}:${(seconds < 10 ? '0' : '') + seconds}`
+    }
   }
 
   private handlePlayerItemStatusChanges = (body: number) => {
@@ -77,7 +87,7 @@ class AudioPlayer {
 
   private handlePlayerInfo = (body: EventBody) => {
     if (body.eventName === PlayerInfo.duration) {
-      this.setStatus({ duration: body.value });
+      this.setStatus({ duration: this.getDuration(body.value) });
     }
   };
 
