@@ -10,10 +10,14 @@ declare interface PlayerStatus {
   ready?: boolean,
   playing?: boolean,
   loading?: boolean,
+  currentTime?: {
+    seconds: number,
+    formatted: string
+  },
   duration?: {
     seconds: number,
     formatted: string
-  } | {}
+  }
 }
 
 declare interface EventBody {

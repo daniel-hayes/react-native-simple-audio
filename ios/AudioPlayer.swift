@@ -45,6 +45,7 @@ class AudioPlayer: RCTEventEmitter {
     }
     
     enum PlayerInfo {
+        static let currentTime = "currentTime"
         static let duration = "duration"
     }
     
@@ -160,17 +161,10 @@ class AudioPlayer: RCTEventEmitter {
         let interval = CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
         timeObserverToken = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { time in
             let seconds = Int(round(CMTimeGetSeconds(time)))
-
-            print(seconds)
-
-//            print(player.currentItem!.asset.duration)
-//            print(CMTimeGetSeconds(player.currentItem!.asset.duration))
-//            print(CMTimeGetSeconds(playerItem.duration))
-//            print(CMTimeGetSeconds(playerItem.duration))
-//            print(playerItem.duration.seconds)
-
-
-//            let formattedSeconds = self?.getFormattedDuration(duration: TimeInterval(seconds))
+            self.sendEventObject(
+                listener: SupportedEvents.playerInfo,
+                eventBody: (PlayerInfo.currentTime, seconds)
+            )
         }
 
         waitingObserver = player.observe(\.reasonForWaitingToPlay, options: [.new, .old], changeHandler: { (player, change) in

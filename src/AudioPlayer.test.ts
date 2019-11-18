@@ -129,31 +129,40 @@ describe('AudioPlayer', () => {
     });
   });
 
-  describe('getDuration', () => {
+  describe('formatTime', () => {
     it('returns a duration under a minute', () => {
       // @ts-ignore
-      expect(player.getDuration(10)).toEqual({ seconds: 10, formatted: '0:10' });
+      expect(player.formatTime(10)).toEqual({ seconds: 10, formatted: '0:10' });
     });
 
     it('returns a duration over a minute', () => {
       // @ts-ignore
-      expect(player.getDuration(61)).toEqual({ seconds: 61, formatted: '1:01' });
+      expect(player.formatTime(61)).toEqual({ seconds: 61, formatted: '1:01' });
     });
 
     it('returns a long duration', () => {
       // @ts-ignore
-      expect(player.getDuration(4004)).toEqual({ seconds: 4004, formatted: '66:44' });
+      expect(player.formatTime(4004)).toEqual({ seconds: 4004, formatted: '66:44' });
     });
   });
 
   describe('handlePlayerInfo', () => {
     it('should set the duration status', () => {
-      expect(player.status.duration).toMatchObject({});
+      expect(player.status.duration).toMatchObject({ seconds: 0, formatted: '0:00' });
 
       // @ts-ignore
       player.handlePlayerInfo({ eventName: 'duration', value: 123 })
 
       expect(Object.keys(player.status.duration!)).toEqual(['seconds', 'formatted']);
+    });
+
+    it('should set the currentTime status', () => {
+      expect(player.status.currentTime).toMatchObject({ seconds: 0, formatted: '0:00' });
+
+      // @ts-ignore
+      player.handlePlayerInfo({ eventName: 'currentTime', value: 123 })
+
+      expect(Object.keys(player.status.currentTime!)).toEqual(['seconds', 'formatted']);
     });
   });
 

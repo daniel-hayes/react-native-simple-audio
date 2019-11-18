@@ -18,6 +18,7 @@ enum PlayerItemStatus {
 };
 
 enum PlayerInfo {
+  currentTime = 'currentTime',
   duration = 'duration'
 };
 
@@ -52,8 +53,16 @@ class AudioPlayer {
       ready: false,
       playing: false,
       loading: false,
-      duration: {}
+      duration: this.playerStartingTime,
+      currentTime: this.playerStartingTime
     };
+  }
+
+  get playerStartingTime() {
+    return {
+      seconds: 0,
+      formatted: '0:00'
+    }
   }
 
   setStatus(changes: PlayerStatus) {
@@ -65,12 +74,12 @@ class AudioPlayer {
     this.statusHandler(this.status);
   }
 
-  private getDuration = (durationInSeconds: number) => {
-    const minutes = Math.floor(durationInSeconds / 60);
-    const seconds = Math.floor(durationInSeconds % 60);
+  private formatTime = (timeInseconds: number) => {
+    const minutes = Math.floor(timeInseconds / 60);
+    const seconds = Math.floor(timeInseconds % 60);
 
     return {
-      seconds: durationInSeconds,
+      seconds: timeInseconds,
       formatted: `${minutes}:${(seconds < 10 ? '0' : '') + seconds}`
     }
   }
@@ -87,7 +96,11 @@ class AudioPlayer {
 
   private handlePlayerInfo = (body: EventBody) => {
     if (body.eventName === PlayerInfo.duration) {
-      this.setStatus({ duration: this.getDuration(body.value) });
+      this.setStatus({ duration: this.formatTime(body.value) });
+    }
+
+    if (body.eventName === PlayerInfo.currentTime) {
+      this.setStatus({ currentTime: this.formatTime(body.value) });
     }
   };
 
