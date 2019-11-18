@@ -33,7 +33,7 @@ describe('AudioPlayer', () => {
   describe('setStatus', () => {
     it('should update local status', () => {
       const initialStatus = player.status;
-      const updatedStatus = { isReady: true }
+      const updatedStatus = { ready: true }
       player.setStatus(updatedStatus);
       expect(player.status).not.toEqual(initialStatus);
       expect(player.status).toEqual({ ...initialStatus, ...updatedStatus });
@@ -52,7 +52,7 @@ describe('AudioPlayer', () => {
     });
 
     it('should pause the audio', () => {
-      player.setStatus({ isPlaying: true });
+      player.setStatus({ playing: true });
       player.toggleAudio();
       expect(NativeModules.AudioPlayer.pause).toHaveBeenCalled();
     });
@@ -86,13 +86,13 @@ describe('AudioPlayer', () => {
             resolve(player.status);
           });
 
-        NativeEventEmitterMock.emit('initialize', 1);
+        NativeEventEmitterMock.emit('playerStatus', 1);
       });
 
       expect(result).toMatchObject({
-        isReady: true,
-        isPlaying: false,
-        isLoading: false
+        ready: true,
+        playing: false,
+        loading: false
       });
     });
 
@@ -105,14 +105,14 @@ describe('AudioPlayer', () => {
             resolve(player.status);
           });
 
-        NativeEventEmitterMock.emit('initialize', -1);
+        NativeEventEmitterMock.emit('playerStatus', -1);
       });
 
       // @TODO figure out a better way to error handle this in implementation
       expect(result).toMatchObject({
-        isReady: false,
-        isPlaying: false,
-        isLoading: false
+        ready: false,
+        playing: false,
+        loading: false
       });
     });
 
@@ -122,27 +122,27 @@ describe('AudioPlayer', () => {
       await expect(player.create()).rejects.toBeUndefined();
 
       expect(player.status).toMatchObject({
-        isReady: false,
-        isPlaying: false,
-        isLoading: false
+        ready: false,
+        playing: false,
+        loading: false
       });
     });
   });
 
   describe('destroy', () => {
     it('should remove all event emitters', () => {
-      const [initialize, playerStatus] = ['initialize', 'playerStatus'];
+      const [playerStatus, playerItemStatus] = ['playerStatus', 'playerItemStatus'];
 
       NativeEventEmitterMock.addListener(playerStatus, jest.fn);
-      NativeEventEmitterMock.addListener(initialize, jest.fn);
+      NativeEventEmitterMock.addListener(playerItemStatus, jest.fn);
 
       expect(NativeEventEmitterMock.listeners(playerStatus)).toHaveLength;
-      expect(NativeEventEmitterMock.listeners(initialize)).toHaveLength;
+      expect(NativeEventEmitterMock.listeners(playerItemStatus)).toHaveLength;
 
       player.destroy();
 
       expect(NativeEventEmitterMock.listeners(playerStatus)).toHaveLength(0);
-      expect(NativeEventEmitterMock.listeners(initialize)).toHaveLength(0);
+      expect(NativeEventEmitterMock.listeners(playerItemStatus)).toHaveLength(0);
     });
 
     it('should destroy the native player', () => {

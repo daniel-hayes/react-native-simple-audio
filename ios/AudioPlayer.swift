@@ -15,6 +15,7 @@ var emptyBufferObserver: NSKeyValueObservation!
 var playbackLikelyObserver: NSKeyValueObservation!
 var timeControlStatusObserver: NSKeyValueObservation!
 var waitingObserver: NSKeyValueObservation!
+var timeObserverToken: Any?
 
 // Key-value observing context
 private var observerContext = 0
@@ -24,8 +25,8 @@ private var observerContext = 0
 class AudioPlayer: RCTEventEmitter {
     
     enum SupportedEvents {
-        static let initialize = "initialize"
         static let playerStatus = "playerStatus"
+        static let playerItemStatus = "playerItemStatus"
     }
     
     enum PlayerStatus {
@@ -34,12 +35,24 @@ class AudioPlayer: RCTEventEmitter {
         static let ready = 1
     }
     
+    enum PlayerItemStatus {
+        static let buffering = 0
+        static let buffered = 1
+        static let playing = 2
+        static let paused = 3
+        static let waiting = 4
+    }
+    
+    enum PlayerItemInfo {
+        static let duration = "duration"
+    }
+    
     @objc override static func requiresMainQueueSetup() -> Bool {
         return false
     }
     
     @objc open override func supportedEvents() -> [String] {
-        return [SupportedEvents.initialize, SupportedEvents.playerStatus]
+        return [SupportedEvents.playerStatus, SupportedEvents.playerItemStatus]
     }
     
     @objc(prepare:)
@@ -59,6 +72,7 @@ class AudioPlayer: RCTEventEmitter {
         
         // Associate the player item with the player
         player = AVPlayer(playerItem: playerItem)
+        
         // ensure playback happens immediately
         player.automaticallyWaitsToMinimizeStalling = false
         
@@ -82,19 +96,41 @@ class AudioPlayer: RCTEventEmitter {
         let seconds: Int64 = Int64(timeInSeconds)
         let jumpTo: CMTime = CMTimeMake(value: seconds, timescale: 1)
         let newTime = backwards ? player.currentTime() - jumpTo : player.currentTime() + jumpTo
-        
         player.seek(to: newTime, toleranceBefore: CMTime.zero, toleranceAfter: CMTime.zero)
     }
+    
+//    private func sendEvent() {
+//        // duration of the current item
+//        let duration: [String: Any] = [
+//            "eventName": PlayerItemInfo.duration,
+//            "value": Int(round(CMTimeGetSeconds(playerItem.duration))),
+//        ]
+//
+//        self.sendEvent(withName: <#T##String!#>, body: <#T##Any!#>)
+//    }
     
     private func addObservers() {
         statusObserver = playerItem.observe(\.status, options:  [.new, .old], changeHandler: { (playerItem, change) in
             switch playerItem.status {
             case .readyToPlay:
-                self.sendEvent(withName: SupportedEvents.initialize, body: PlayerStatus.ready)
+                // send ready event and other initial item info
+                self.sendEvent(withName: SupportedEvents.playerStatus, body: PlayerStatus.ready)
+                
+//                print(playerItem.duration)
+//                print(playerItem.duration)
+//                print(playerItem.duration)
+//                print(playerItem.duration.seconds)
+                
+                // duration of the current item
+//                let duration: [String: Any] = [
+//                    "eventName": PlayerItemInfo.duration,
+//                    "value": round(CMTimeGetSeconds(playerItem.asset.duration)),
+//                ]
+//                self.sendEvent(withName: SupportedEvents.playerItemStatus, body: duration)
             case .failed:
-                self.sendEvent(withName: SupportedEvents.initialize, body: PlayerStatus.failed)
+                self.sendEvent(withName: SupportedEvents.playerStatus, body: PlayerStatus.failed)
             case .unknown:
-                self.sendEvent(withName: SupportedEvents.initialize, body: PlayerStatus.unknown)
+                self.sendEvent(withName: SupportedEvents.playerStatus, body: PlayerStatus.unknown)
             default:
                 print("waiting for status change")
             }
@@ -102,28 +138,45 @@ class AudioPlayer: RCTEventEmitter {
         
         // listening for buffer changes
         emptyBufferObserver = player.currentItem!.observe(\.isPlaybackBufferEmpty, options: [.new]) { (playerItem, change) in
-            self.sendEvent(withName: SupportedEvents.playerStatus, body: "BUFFERING")
+            self.sendEvent(withName: SupportedEvents.playerItemStatus, body: PlayerItemStatus.buffering)
         }
         
         playbackLikelyObserver = player.currentItem!.observe(\.isPlaybackLikelyToKeepUp, options: [.new]) { (playerItem, change) in
-            // @TODO should this change to player not playerItem?
             if playerItem.isPlaybackLikelyToKeepUp {
-                self.sendEvent(withName: SupportedEvents.playerStatus, body: "PLAYER DONE")
+                self.sendEvent(withName: SupportedEvents.playerItemStatus, body: PlayerItemStatus.buffered)
             }
         }
         
         timeControlStatusObserver = player.observe(\.timeControlStatus, options: [.new, .old], changeHandler: { (player, change) in
+            print(player.timeControlStatus)
             switch (player.timeControlStatus) {
             case AVPlayer.TimeControlStatus.paused:
-                self.sendEvent(withName: SupportedEvents.playerStatus, body: "PLAYER PAUSED")
+                self.sendEvent(withName: SupportedEvents.playerItemStatus, body: PlayerItemStatus.paused)
             case AVPlayer.TimeControlStatus.playing:
-                self.sendEvent(withName: SupportedEvents.playerStatus, body: "PLAYER PLAYING")
+                self.sendEvent(withName: SupportedEvents.playerItemStatus, body: PlayerItemStatus.playing)
             case AVPlayer.TimeControlStatus.waitingToPlayAtSpecifiedRate:
-                self.sendEvent(withName: SupportedEvents.playerStatus, body: "PLAYER WAITING")
+                self.sendEvent(withName: SupportedEvents.playerItemStatus, body: PlayerItemStatus.waiting)
             default:
                 print("no changes")
             }
         })
+
+        // Notify every half second
+//        let interval = CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+//        timeObserverToken = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { time in
+//            let seconds = Int(round(CMTimeGetSeconds(time)))
+//
+//            print(seconds)
+//
+////            print(player.currentItem!.asset.duration)
+////            print(CMTimeGetSeconds(player.currentItem!.asset.duration))
+////            print(CMTimeGetSeconds(playerItem.duration))
+////            print(CMTimeGetSeconds(playerItem.duration))
+////            print(playerItem.duration.seconds)
+//
+//
+////            let formattedSeconds = self?.getFormattedDuration(duration: TimeInterval(seconds))
+//        }
 
         waitingObserver = player.observe(\.reasonForWaitingToPlay, options: [.new, .old], changeHandler: { (player, change) in
             // @TODO what to do here
@@ -135,6 +188,8 @@ class AudioPlayer: RCTEventEmitter {
     func destroy() -> Void {
         player.pause()
         player.replaceCurrentItem(with: nil)
+        // do we need this?
+        // self.removeObservers();
     }
     
     private func removeObservers() {
@@ -143,6 +198,10 @@ class AudioPlayer: RCTEventEmitter {
         playbackLikelyObserver?.invalidate()
         timeControlStatusObserver?.invalidate()
         waitingObserver?.invalidate()
+        
+        if let timeObserverToken = timeObserverToken {
+            player.removeTimeObserver(timeObserverToken)
+        }
     }
     
     deinit {

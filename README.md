@@ -46,12 +46,12 @@ export const Player = ({ url }) => {
 
   return (
     <View>
-      {player.status.isLoading && !player.status.isReady ? (
+      {player.status.loading && !player.status.ready ? (
         <ActivityIndicator size="large" />
       ) : (
           <>
             <Button
-              title={`${player.status.isPlaying ? 'Pause' : 'Play'}`}
+              title={`${player.status.playing ? 'Pause' : 'Play'}`}
               color="#f194ff"
               onPress={player.toggleAudio}
             />

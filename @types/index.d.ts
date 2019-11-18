@@ -7,7 +7,7 @@ declare interface NativePlayer {
 }
 
 declare interface PlayerStatus {
-  isReady?: boolean,
-  isPlaying?: boolean,
-  isLoading?: boolean,
+  ready?: boolean,
+  playing?: boolean,
+  loading?: boolean,
 }

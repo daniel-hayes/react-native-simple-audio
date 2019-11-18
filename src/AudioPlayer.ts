@@ -2,15 +2,23 @@ import { NativeEventEmitter, NativeModules, EventSubscriptionVendor } from 'reac
 const RCTAudioPlayer:
   NativePlayer & EventSubscriptionVendor = NativeModules.AudioPlayer;
 
-enum PlayerSetup {
+enum PlayerSetupStatus {
   failed = -1,
   unknown = 0,
   ready = 1
 };
 
+enum PlayerItemStatus {
+  buffering = 0,
+  buffered = 1,
+  playing = 2,
+  paused = 3,
+  waiting = 4
+};
+
 enum SupportedEvents {
-  initialize = 'initialize',
-  playerStatus = 'playerStatus'
+  playerStatus = 'playerStatus',
+  playerItemStatus = 'playerItemStatus'
 };
 
 interface StatusHandler {
@@ -35,9 +43,9 @@ class AudioPlayer {
     this.eventEmitter = eventEmitter;
 
     this.status = {
-      isReady: false,
-      isPlaying: false,
-      isLoading: false
+      ready: false,
+      playing: false,
+      loading: false
     };
   }
 
@@ -50,13 +58,13 @@ class AudioPlayer {
     this.statusHandler(this.status);
   }
 
-  private handlePlayerStatusChanges = (body: string) => {
-    if (body === 'PLAYER PLAYING') {
-      this.setStatus({ isPlaying: true });
+  private handlePlayerItemStatusChanges = (body: number) => {
+    if (body === PlayerItemStatus.playing) {
+      this.setStatus({ playing: true });
     }
 
-    if (body === 'PLAYER PAUSED') {
-      this.setStatus({ isPlaying: false });
+    if (body === PlayerItemStatus.paused) {
+      this.setStatus({ playing: false });
     }
   };
 
@@ -67,7 +75,7 @@ class AudioPlayer {
       if (urlError) {
         // problem with URL and player was never created
         this.setStatus({
-          isLoading: false
+          loading: false
         });
 
         reject();
@@ -76,23 +84,23 @@ class AudioPlayer {
       // set listener for all status changes other than setting up player
       this.eventEmitter!.addListener(
         SupportedEvents.playerStatus,
-        this.handlePlayerStatusChanges
+        this.handlePlayerItemStatusChanges
       );
 
       // wait for player to be created
-      this.eventEmitter!.addListener(SupportedEvents.initialize, body => {
-        if (body === PlayerSetup.ready) {
+      this.eventEmitter!.addListener(SupportedEvents.playerStatus, (body: number) => {
+        if (body === PlayerSetupStatus.ready) {
           this.setStatus({
-            isReady: true,
-            isLoading: false
+            ready: true,
+            loading: false
           });
 
           resolve();
         }
 
-        if (body === PlayerSetup.failed) {
+        if (body === PlayerSetupStatus.failed) {
           this.setStatus({
-            isLoading: false
+            loading: false
           });
 
           reject();
@@ -102,7 +110,7 @@ class AudioPlayer {
   }
 
   toggleAudio = () => {
-    if (this.status.isPlaying) {
+    if (this.status.playing) {
       RCTAudioPlayer.pause();
     } else {
       RCTAudioPlayer.play();
@@ -120,7 +128,7 @@ class AudioPlayer {
   destroy() {
     if (this.eventEmitter) {
       this.eventEmitter.removeAllListeners(SupportedEvents.playerStatus);
-      this.eventEmitter.removeAllListeners(SupportedEvents.initialize);
+      this.eventEmitter.removeAllListeners(SupportedEvents.playerItemStatus);
       RCTAudioPlayer.destroy();
     }
   }

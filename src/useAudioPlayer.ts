@@ -6,7 +6,7 @@ export const playerSetupError = 'There was a problem setting up the player';
 // @TODO make this a custom type for local/remote urls
 const useAudioPlayer = (url: string) => {
   const [player, setPlayer] = useState({} as AudioPlayer);
-  const [status, setStatus] = useState<PlayerStatus>({ isLoading: true });
+  const [status, setStatus] = useState<PlayerStatus>({ loading: true });
   const [error, setError] = useState();
 
   useEffect(() => {
@@ -18,12 +18,12 @@ const useAudioPlayer = (url: string) => {
         // wait for player to be created before returning
         await nativePlayer.create();
 
-        if (nativePlayer.status.isReady) {
+        if (nativePlayer.status.ready) {
           setPlayer(nativePlayer);
         }
 
         // find a better way to handle this error
-        if (!nativePlayer.status.isReady) {
+        if (!nativePlayer.status.ready) {
           setError(playerSetupError);
         }
       } catch (err) {
@@ -31,7 +31,7 @@ const useAudioPlayer = (url: string) => {
       }
     }
 
-    if (status.isLoading) {
+    if (status.loading) {
       createPlayer();
     }
   }, [url, status]);

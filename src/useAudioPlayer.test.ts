@@ -25,8 +25,8 @@ describe('useAudioPlayer', () => {
         seekForwards: jest.fn(),
         seekBackwards: jest.fn(),
         status: {
-          isLoading: false,
-          isReady: true,
+          loading: false,
+          ready: true,
         }
       }
     });
@@ -35,7 +35,7 @@ describe('useAudioPlayer', () => {
       useAudioPlayer('foo.mp3')
     );
 
-    expect(result.current[0].status).toMatchObject({ isLoading: true });
+    expect(result.current[0].status).toMatchObject({ loading: true });
     await waitForNextUpdate();
     expect(result.current[0].toggleAudio).toBeDefined();
     expect(result.current[0].seekForwards).toBeDefined();
@@ -48,8 +48,8 @@ describe('useAudioPlayer', () => {
       return {
         create: jest.fn(),
         status: {
-          isLoading: false,
-          isReady: false,
+          loading: false,
+          ready: false,
         }
       }
     });
@@ -58,7 +58,7 @@ describe('useAudioPlayer', () => {
       useAudioPlayer('foo.mp3')
     );
 
-    expect(result.current[0].status).toMatchObject({ isLoading: true });
+    expect(result.current[0].status).toMatchObject({ loading: true });
     await waitForNextUpdate();
     expect(result.current[1]).toMatch(playerSetupError);
   });
@@ -76,7 +76,7 @@ describe('useAudioPlayer', () => {
       useAudioPlayer('foo.mp3')
     );
 
-    expect(result.current[0].status).toMatchObject({ isLoading: true });
+    expect(result.current[0].status).toMatchObject({ loading: true });
     await waitForNextUpdate();
     expect(result.current[1]).toMatch(playerSetupError);
   });
@@ -88,8 +88,8 @@ describe('useAudioPlayer', () => {
         create: jest.fn(),
         destroy: jest.fn(),
         status: {
-          isLoading: false,
-          isReady: true,
+          loading: false,
+          ready: true,
         }
       }
     });
