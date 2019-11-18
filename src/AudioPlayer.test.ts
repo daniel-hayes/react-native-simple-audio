@@ -129,20 +129,35 @@ describe('AudioPlayer', () => {
     });
   });
 
+  describe('handlePlayerInfo', () => {
+    it('should set the duration', () => {
+      expect(player.status.duration).toBe(0);
+
+      // @ts-ignore
+      // ignoring to test private method
+      player.handlePlayerInfo({ eventName: 'duration', value: 123 })
+
+      expect(player.status.duration).toBe(123);
+    });
+  });
+
   describe('destroy', () => {
     it('should remove all event emitters', () => {
-      const [playerStatus, playerItemStatus] = ['playerStatus', 'playerItemStatus'];
+      const [playerStatus, playerItemStatus, playerInfo] = ['playerStatus', 'playerItemStatus', 'playerInfo'];
 
       NativeEventEmitterMock.addListener(playerStatus, jest.fn);
       NativeEventEmitterMock.addListener(playerItemStatus, jest.fn);
+      NativeEventEmitterMock.addListener(playerInfo, jest.fn);
 
       expect(NativeEventEmitterMock.listeners(playerStatus)).toHaveLength;
       expect(NativeEventEmitterMock.listeners(playerItemStatus)).toHaveLength;
+      expect(NativeEventEmitterMock.listeners(playerInfo)).toHaveLength;
 
       player.destroy();
 
       expect(NativeEventEmitterMock.listeners(playerStatus)).toHaveLength(0);
       expect(NativeEventEmitterMock.listeners(playerItemStatus)).toHaveLength(0);
+      expect(NativeEventEmitterMock.listeners(playerInfo)).toHaveLength(0);
     });
 
     it('should destroy the native player', () => {

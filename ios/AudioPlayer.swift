@@ -27,6 +27,7 @@ class AudioPlayer: RCTEventEmitter {
     enum SupportedEvents {
         static let playerStatus = "playerStatus"
         static let playerItemStatus = "playerItemStatus"
+        static let playerInfo = "playerInfo"
     }
     
     enum PlayerStatus {
@@ -43,7 +44,7 @@ class AudioPlayer: RCTEventEmitter {
         static let waiting = 4
     }
     
-    enum PlayerItemInfo {
+    enum PlayerInfo {
         static let duration = "duration"
     }
     
@@ -52,7 +53,7 @@ class AudioPlayer: RCTEventEmitter {
     }
     
     @objc open override func supportedEvents() -> [String] {
-        return [SupportedEvents.playerStatus, SupportedEvents.playerItemStatus]
+        return [SupportedEvents.playerStatus, SupportedEvents.playerItemStatus, SupportedEvents.playerInfo]
     }
     
     @objc(prepare:)
@@ -99,15 +100,14 @@ class AudioPlayer: RCTEventEmitter {
         player.seek(to: newTime, toleranceBefore: CMTime.zero, toleranceAfter: CMTime.zero)
     }
     
-//    private func sendEvent() {
-//        // duration of the current item
-//        let duration: [String: Any] = [
-//            "eventName": PlayerItemInfo.duration,
-//            "value": Int(round(CMTimeGetSeconds(playerItem.duration))),
-//        ]
-//
-//        self.sendEvent(withName: <#T##String!#>, body: <#T##Any!#>)
-//    }
+    private func sendEventObject(listener: String, eventBody: (name: String, value: Any)) -> Void {
+        let body: [String: Any] = [
+            "eventName": eventBody.name,
+            "value": eventBody.value,
+        ]
+
+        self.sendEvent(withName: listener, body: body)
+    }
     
     private func addObservers() {
         statusObserver = playerItem.observe(\.status, options:  [.new, .old], changeHandler: { (playerItem, change) in
@@ -116,17 +116,12 @@ class AudioPlayer: RCTEventEmitter {
                 // send ready event and other initial item info
                 self.sendEvent(withName: SupportedEvents.playerStatus, body: PlayerStatus.ready)
                 
-//                print(playerItem.duration)
-//                print(playerItem.duration)
-//                print(playerItem.duration)
-//                print(playerItem.duration.seconds)
-                
                 // duration of the current item
-//                let duration: [String: Any] = [
-//                    "eventName": PlayerItemInfo.duration,
-//                    "value": round(CMTimeGetSeconds(playerItem.asset.duration)),
-//                ]
-//                self.sendEvent(withName: SupportedEvents.playerItemStatus, body: duration)
+                let durationInSeconds = round(CMTimeGetSeconds(playerItem.asset.duration))
+                self.sendEventObject(
+                    listener: SupportedEvents.playerInfo,
+                    eventBody: (PlayerInfo.duration, durationInSeconds)
+                )
             case .failed:
                 self.sendEvent(withName: SupportedEvents.playerStatus, body: PlayerStatus.failed)
             case .unknown:
@@ -162,21 +157,21 @@ class AudioPlayer: RCTEventEmitter {
         })
 
         // Notify every half second
-//        let interval = CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-//        timeObserverToken = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { time in
-//            let seconds = Int(round(CMTimeGetSeconds(time)))
-//
-//            print(seconds)
-//
-////            print(player.currentItem!.asset.duration)
-////            print(CMTimeGetSeconds(player.currentItem!.asset.duration))
-////            print(CMTimeGetSeconds(playerItem.duration))
-////            print(CMTimeGetSeconds(playerItem.duration))
-////            print(playerItem.duration.seconds)
-//
-//
-////            let formattedSeconds = self?.getFormattedDuration(duration: TimeInterval(seconds))
-//        }
+        let interval = CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+        timeObserverToken = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { time in
+            let seconds = Int(round(CMTimeGetSeconds(time)))
+
+            print(seconds)
+
+//            print(player.currentItem!.asset.duration)
+//            print(CMTimeGetSeconds(player.currentItem!.asset.duration))
+//            print(CMTimeGetSeconds(playerItem.duration))
+//            print(CMTimeGetSeconds(playerItem.duration))
+//            print(playerItem.duration.seconds)
+
+
+//            let formattedSeconds = self?.getFormattedDuration(duration: TimeInterval(seconds))
+        }
 
         waitingObserver = player.observe(\.reasonForWaitingToPlay, options: [.new, .old], changeHandler: { (player, change) in
             // @TODO what to do here

@@ -1,4 +1,5 @@
 import { NativeEventEmitter, NativeModules, EventSubscriptionVendor } from 'react-native';
+
 const RCTAudioPlayer:
   NativePlayer & EventSubscriptionVendor = NativeModules.AudioPlayer;
 
@@ -16,9 +17,14 @@ enum PlayerItemStatus {
   waiting = 4
 };
 
+enum PlayerInfo {
+  duration = 'duration'
+};
+
 enum SupportedEvents {
   playerStatus = 'playerStatus',
-  playerItemStatus = 'playerItemStatus'
+  playerItemStatus = 'playerItemStatus',
+  playerInfo = 'playerInfo'
 };
 
 interface StatusHandler {
@@ -45,7 +51,8 @@ class AudioPlayer {
     this.status = {
       ready: false,
       playing: false,
-      loading: false
+      loading: false,
+      duration: 0
     };
   }
 
@@ -68,6 +75,12 @@ class AudioPlayer {
     }
   };
 
+  private handlePlayerInfo = (body: EventBody) => {
+    if (body.eventName === PlayerInfo.duration) {
+      this.setStatus({ duration: body.value });
+    }
+  };
+
   create() {
     return new Promise((resolve, reject) => {
       const urlError = RCTAudioPlayer.prepare(this.url);
@@ -81,10 +94,16 @@ class AudioPlayer {
         reject();
       }
 
-      // set listener for all status changes other than setting up player
+      // set listener for all status changes on the asset
       this.eventEmitter!.addListener(
-        SupportedEvents.playerStatus,
+        SupportedEvents.playerItemStatus,
         this.handlePlayerItemStatusChanges
+      );
+
+      // set listener for getting player info
+      this.eventEmitter!.addListener(
+        SupportedEvents.playerInfo,
+        this.handlePlayerInfo
       );
 
       // wait for player to be created
@@ -129,6 +148,8 @@ class AudioPlayer {
     if (this.eventEmitter) {
       this.eventEmitter.removeAllListeners(SupportedEvents.playerStatus);
       this.eventEmitter.removeAllListeners(SupportedEvents.playerItemStatus);
+      this.eventEmitter.removeAllListeners(SupportedEvents.playerInfo);
+
       RCTAudioPlayer.destroy();
     }
   }
