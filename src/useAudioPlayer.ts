@@ -48,6 +48,7 @@ const useAudioPlayer = (url: string) => {
 
   const playerController = {
     status,
+    seek: player.seek,
     toggleAudio: player.toggleAudio,
     seekForwards: player.seekForwards,
     seekBackwards: player.seekBackwards,

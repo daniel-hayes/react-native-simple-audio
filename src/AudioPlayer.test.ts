@@ -12,6 +12,7 @@ jest.mock('react-native', () => {
         pause: jest.fn(),
         prepare: jest.fn(),
         jump: jest.fn(),
+        seek: jest.fn(),
         destroy: jest.fn(),
         addListener: jest.fn(),
         removeListeners: jest.fn(),
@@ -57,6 +58,16 @@ describe('AudioPlayer', () => {
       expect(NativeModules.AudioPlayer.pause).toHaveBeenCalled();
     });
   });
+
+  describe('seek', () => {
+    const seconds = 0;
+
+    it('should seek to position based on seconds input', () => {
+      player.seek(seconds);
+      expect(NativeModules.AudioPlayer.seek).toHaveBeenCalledWith(seconds);
+    });
+  });
+
 
   describe('seekForwards', () => {
     const seconds = 10;

@@ -3,6 +3,7 @@ declare interface NativePlayer {
   pause(): void,
   destroy(): void,
   prepare(url: string): string | void,
+  seek(timeInSeconds: number): void,
   jump(timeInSeconds: number, shouldJumpBackwards: boolean): void,
 }
 

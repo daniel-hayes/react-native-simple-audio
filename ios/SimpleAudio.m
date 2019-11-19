@@ -8,5 +8,6 @@ RCT_EXTERN_METHOD(play)
 RCT_EXTERN_METHOD(pause)
 RCT_EXTERN_METHOD(destroy)
 RCT_EXTERN_METHOD(jump:(NSInteger *)timeInSeconds shouldJumpBackwards:(BOOL *)backwards)
+RCT_EXTERN_METHOD(seek:(NSInteger *)timeInSeconds)
 
 @end

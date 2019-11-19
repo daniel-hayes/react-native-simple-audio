@@ -175,6 +175,10 @@ class AudioPlayer {
     }
   };
 
+  seek = (timeInSeconds: number) => {
+    RCTAudioPlayer.seek(timeInSeconds);
+  };
+
   seekForwards = (timeInSeconds: number) => {
     RCTAudioPlayer.jump(timeInSeconds, false);
   };

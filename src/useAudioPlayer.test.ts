@@ -24,6 +24,7 @@ describe('useAudioPlayer', () => {
         toggleAudio: jest.fn(),
         seekForwards: jest.fn(),
         seekBackwards: jest.fn(),
+        seek: jest.fn(),
         status: {
           loading: false,
           ready: true,
@@ -40,6 +41,7 @@ describe('useAudioPlayer', () => {
     expect(result.current[0].toggleAudio).toBeDefined();
     expect(result.current[0].seekForwards).toBeDefined();
     expect(result.current[0].seekBackwards).toBeDefined();
+    expect(result.current[0].seek).toBeDefined();
   });
 
   it('should return an error', async () => {

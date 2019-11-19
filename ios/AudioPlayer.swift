@@ -2,7 +2,6 @@
 //  AudioPlayer.swift
 //  AudioPlayer
 //
-//  Created by Daniel Hayes on 10/20/19.
 //
 
 import AVFoundation
@@ -107,6 +106,13 @@ class AudioPlayer: RCTEventEmitter {
         player.seek(to: newTime, toleranceBefore: CMTime.zero, toleranceAfter: CMTime.zero)
     }
     
+    @objc(seek:)
+    func seek(timeInSeconds: Int) -> Void {
+        let seconds: Int64 = Int64(timeInSeconds)
+        let jumpTo: CMTime = CMTimeMake(value: seconds, timescale: 1)
+        player.seek(to: jumpTo)
+    }
+    
     private func sendEventObject(listener: String, eventBody: (name: String, value: Any)) -> Void {
         let body: [String: Any] = [
             "eventName": eventBody.name,
@@ -186,11 +192,6 @@ class AudioPlayer: RCTEventEmitter {
                     eventBody: (PlayerInfo.loadedTime, secondsLoaded)
                 )
             }
-        })
-
-        waitingObserver = player.observe(\.reasonForWaitingToPlay, options: [.new, .old], changeHandler: { (player, change) in
-            // @TODO what to do here
-            print("Reason for waiting: ", player.reasonForWaitingToPlay?.rawValue as Any)
         })
     }
     
