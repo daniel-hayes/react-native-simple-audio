@@ -146,6 +146,23 @@ describe('AudioPlayer', () => {
     });
   });
 
+  describe('progressPercentage', () => {
+    it('returns current progress of a track', () => {
+      // @ts-ignore
+      expect(player.progressPercentage(15, 60)).toEqual(25);
+    });
+
+    it('returns current progress of an uninitialized', () => {
+      // @ts-ignore
+      expect(player.progressPercentage(0, 0)).toEqual(0);
+    });
+
+    it('returns 100 percent if complete', () => {
+      // @ts-ignore
+      expect(player.progressPercentage(65, 60)).toEqual(100);
+    });
+  });
+
   describe('handlePlayerInfo', () => {
     it('should set the duration status', () => {
       expect(player.status.duration).toMatchObject({ seconds: 0, formatted: '0:00' });
@@ -156,13 +173,24 @@ describe('AudioPlayer', () => {
       expect(Object.keys(player.status.duration!)).toEqual(['seconds', 'formatted']);
     });
 
-    it('should set the currentTime status', () => {
+    it('should set the currentTime and progress status', () => {
       expect(player.status.currentTime).toMatchObject({ seconds: 0, formatted: '0:00' });
+      expect(player.status.progress).toBe(0);
 
       // @ts-ignore
       player.handlePlayerInfo({ eventName: 'currentTime', value: 123 })
 
       expect(Object.keys(player.status.currentTime!)).toEqual(['seconds', 'formatted']);
+      expect(player.status.progress).toBeDefined();
+    });
+
+    it('should set the percent loaded', () => {
+      expect(player.status.percentLoaded).toBe(0)
+
+      // @ts-ignore
+      player.handlePlayerInfo({ eventName: 'loadedTime', value: 30 })
+
+      expect(player.status.percentLoaded).toBeDefined();
     });
   });
 
