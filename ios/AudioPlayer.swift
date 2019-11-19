@@ -15,6 +15,7 @@ var emptyBufferObserver: NSKeyValueObservation!
 var playbackLikelyObserver: NSKeyValueObservation!
 var timeControlStatusObserver: NSKeyValueObservation!
 var waitingObserver: NSKeyValueObservation!
+var loadedTimeRangesObserver: NSKeyValueObservation!
 var timeObserverToken: Any?
 
 // Key-value observing context
@@ -47,6 +48,7 @@ class AudioPlayer: RCTEventEmitter {
     enum PlayerInfo {
         static let currentTime = "currentTime"
         static let duration = "duration"
+        static let loadedTime = "loadedTime"
     }
     
     @objc override static func requiresMainQueueSetup() -> Bool {
@@ -169,6 +171,22 @@ class AudioPlayer: RCTEventEmitter {
                 eventBody: (PlayerInfo.currentTime, seconds)
             )
         }
+        
+        loadedTimeRangesObserver = playerItem.observe(\.loadedTimeRanges, options:  [.new, .old], changeHandler: { (playerItem, change) in
+            let loadedTimeRanges = playerItem.loadedTimeRanges
+            let first = loadedTimeRanges.first
+
+            if let timeRange = first?.timeRangeValue {
+                let startSeconds = CMTimeGetSeconds(timeRange.start)
+                let durationSecound = CMTimeGetSeconds(timeRange.duration)
+                let secondsLoaded = startSeconds + durationSecound
+                
+                self.sendEventObject(
+                    listener: SupportedEvents.playerInfo,
+                    eventBody: (PlayerInfo.loadedTime, secondsLoaded)
+                )
+            }
+        })
 
         waitingObserver = player.observe(\.reasonForWaitingToPlay, options: [.new, .old], changeHandler: { (player, change) in
             // @TODO what to do here
@@ -190,6 +208,7 @@ class AudioPlayer: RCTEventEmitter {
         playbackLikelyObserver?.invalidate()
         timeControlStatusObserver?.invalidate()
         waitingObserver?.invalidate()
+        loadedTimeRangesObserver?.invalidate()
         
         if let timeObserverToken = timeObserverToken {
             player.removeTimeObserver(timeObserverToken)

@@ -156,6 +156,11 @@ describe('AudioPlayer', () => {
       // @ts-ignore
       expect(player.progressPercentage(0, 0)).toEqual(0);
     });
+
+    it('returns 100 percent if complete', () => {
+      // @ts-ignore
+      expect(player.progressPercentage(65, 60)).toEqual(100);
+    });
   });
 
   describe('handlePlayerInfo', () => {
@@ -170,12 +175,22 @@ describe('AudioPlayer', () => {
 
     it('should set the currentTime and progress status', () => {
       expect(player.status.currentTime).toMatchObject({ seconds: 0, formatted: '0:00' });
+      expect(player.status.progress).toBe(0);
 
       // @ts-ignore
       player.handlePlayerInfo({ eventName: 'currentTime', value: 123 })
 
       expect(Object.keys(player.status.currentTime!)).toEqual(['seconds', 'formatted']);
       expect(player.status.progress).toBeDefined();
+    });
+
+    it('should set the percent loaded', () => {
+      expect(player.status.percentLoaded).toBe(0)
+
+      // @ts-ignore
+      player.handlePlayerInfo({ eventName: 'loadedTime', value: 30 })
+
+      expect(player.status.percentLoaded).toBeDefined();
     });
   });
 

@@ -19,7 +19,8 @@ enum PlayerItemStatus {
 
 enum PlayerInfo {
   currentTime = 'currentTime',
-  duration = 'duration'
+  duration = 'duration',
+  loadedTime = 'loadedTime'
 };
 
 enum SupportedEvents {
@@ -55,7 +56,8 @@ class AudioPlayer {
       loading: false,
       duration: this.formatTime(0),
       currentTime: this.formatTime(0),
-      progress: 0
+      progress: 0,
+      percentLoaded: 0
     };
   }
 
@@ -80,7 +82,8 @@ class AudioPlayer {
 
   private progressPercentage = (currentTimeInSeconds: number, duration: number) => {
     if (duration > 0) {
-      return (currentTimeInSeconds / duration) * 100;
+      const percent = (currentTimeInSeconds / duration) * 100;
+      return percent > 100 ? 100 : percent;
     }
 
     return 0;
@@ -107,6 +110,12 @@ class AudioPlayer {
       this.setStatus({
         currentTime: this.formatTime(currentTimeInSeconds),
         progress: this.progressPercentage(currentTimeInSeconds, this.status.duration!.seconds)
+      });
+    }
+
+    if (body.eventName === PlayerInfo.loadedTime) {
+      this.setStatus({
+        percentLoaded: this.progressPercentage(body.value, this.status.duration!.seconds)
       });
     }
   };
