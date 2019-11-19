@@ -17,7 +17,8 @@ declare interface PlayerStatus {
   duration?: {
     seconds: number,
     formatted: string
-  }
+  },
+  progress?: number
 }
 
 declare interface EventBody {

@@ -54,7 +54,11 @@ class AudioPlayer: RCTEventEmitter {
     }
     
     @objc open override func supportedEvents() -> [String] {
-        return [SupportedEvents.playerStatus, SupportedEvents.playerItemStatus, SupportedEvents.playerInfo]
+        return [
+            SupportedEvents.playerStatus,
+            SupportedEvents.playerItemStatus,
+            SupportedEvents.playerInfo
+        ]
     }
     
     @objc(prepare:)

@@ -53,16 +53,10 @@ class AudioPlayer {
       ready: false,
       playing: false,
       loading: false,
-      duration: this.playerStartingTime,
-      currentTime: this.playerStartingTime
+      duration: this.formatTime(0),
+      currentTime: this.formatTime(0),
+      progress: 0
     };
-  }
-
-  get playerStartingTime() {
-    return {
-      seconds: 0,
-      formatted: '0:00'
-    }
   }
 
   setStatus(changes: PlayerStatus) {
@@ -84,6 +78,14 @@ class AudioPlayer {
     }
   }
 
+  private progressPercentage = (currentTimeInSeconds: number, duration: number) => {
+    if (duration > 0) {
+      return (currentTimeInSeconds / duration) * 100;
+    }
+
+    return 0;
+  }
+
   private handlePlayerItemStatusChanges = (body: number) => {
     if (body === PlayerItemStatus.playing) {
       this.setStatus({ playing: true });
@@ -100,7 +102,12 @@ class AudioPlayer {
     }
 
     if (body.eventName === PlayerInfo.currentTime) {
-      this.setStatus({ currentTime: this.formatTime(body.value) });
+      const currentTimeInSeconds = body.value;
+
+      this.setStatus({
+        currentTime: this.formatTime(currentTimeInSeconds),
+        progress: this.progressPercentage(currentTimeInSeconds, this.status.duration!.seconds)
+      });
     }
   };
 
