@@ -20,7 +20,7 @@ describe('AudioRecorder', () => {
 
   describe('toggle', () => {
     it('should start recording', () => {
-      recorder.toggle();
+      recorder.toggleRecording();
       expect(NativeModules.AudioRecorder.start).toHaveBeenCalled();
     });
   });

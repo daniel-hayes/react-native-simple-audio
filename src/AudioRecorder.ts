@@ -4,8 +4,18 @@ import { NativeModules } from 'react-native';
 const RCTAudioRecorder = NativeModules.AudioRecorder;
 
 class AudioRecorder {
-  toggle = () => {
-    RCTAudioRecorder.start();
+  status = 'not'
+
+  toggleRecording = () => {
+    console.log(this.status);
+
+    if (this.status == 'not') {
+      this.status = 'recording';
+      RCTAudioRecorder.start();
+    } else {
+      this.status = 'not';
+      RCTAudioRecorder.stop();
+    }
   };
 }
 

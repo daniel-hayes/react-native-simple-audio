@@ -7,13 +7,19 @@
 import AVFoundation
 
 var audioRecorder: AVAudioRecorder!
-var recordingSession: AVAudioSession!
 
 @objc(AudioRecorder)
 class AudioRecorder: NSObject, AVAudioRecorderDelegate {
     
     @objc(start)
     func start() -> Void {
+        
+        if audioRecorder == nil {
+            // handle this scenario
+        }
+
+        let recordingSession = AVAudioSession.sharedInstance()
+
         do {
             try recordingSession.setCategory(.playAndRecord, mode: .default)
             try recordingSession.setActive(true)
@@ -48,27 +54,30 @@ class AudioRecorder: NSObject, AVAudioRecorderDelegate {
             print(self)
             print("recording")
         } catch {
-//            finishRecording(success: false)
+            finishRecording(success: false)
         }
         
         print("start")
     }
 
     func finishRecording(success: Bool) {
-        audioRecorder.stop()
-        audioRecorder = nil
+        if audioRecorder != nil {
+            audioRecorder?.stop()
+            audioRecorder = nil
+        }
+
+        try! AVAudioSession.sharedInstance().setActive(false)
         
         if success {
             
         } else {
-            
             // recording failed :(
         }
     }
     
     @objc(stop)
     func stop() -> Void {
-        print("start")
+        finishRecording(success: true)
     }
     
     //  Delegate helpers
