@@ -11,58 +11,76 @@ var audioRecorder: AVAudioRecorder!
 @objc(AudioRecorder)
 class AudioRecorder: NSObject, AVAudioRecorderDelegate {
     
-    @objc(start)
-    func start() -> Void {
+    @objc static func requiresMainQueueSetup() -> Bool {
+        return false
+    }
+    
+    @objc(prepare:resolver:rejecter:)
+    func prepare(fileName: String, resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) -> Void {
         
-        if audioRecorder == nil {
-            // handle this scenario
-        }
 
+        print(fileName)
+
+//        RCT_REMAP_METHOD(findEvents,
+//                         findEventsWithResolver:(RCTPromiseResolveBlock)resolve
+//            rejecter:(RCTPromiseRejectBlock)reject)
+//        {
+//            NSArray *events = ...
+//            if (events) {
+//                resolve(events);
+//            } else {
+//                NSError *error = ...
+//                    reject(@"no_events", @"There were no events", error);
+//            }
+//        }
+        
         let recordingSession = AVAudioSession.sharedInstance()
-
+        
         do {
             try recordingSession.setCategory(.playAndRecord, mode: .default)
             try recordingSession.setActive(true)
-//            recordingSession.requestRecordPermission() { [unowned self] allowed in
-//                DispatchQueue.main.async {
-//                    if allowed {
-//                        self.loadRecordingUI()
-//                    } else {
-//                        // failed to record!
-//                    }
-//                }
-//            }
-        } catch {
-            // failed to record!
-        }
+            
+            // @TODO request permission
+            //            recordingSession.requestRecordPermission() { [unowned self] allowed in
+            //                DispatchQueue.main.async {
+            //                    if allowed {
+            //                        self.loadRecordingUI()
+            //                    } else {
+            //                        // failed to record!
+            //                    }
+            //                }
+            //            }
+            
+            let audioFilename = AudioUtils.getDocumentsDirectory().appendingPathComponent("recording.m4a")
         
-        
-        let audioFilename = AudioUtils.getDocumentsDirectory().appendingPathComponent("recording.m4a")
-        
-        let settings = [
-            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-            AVSampleRateKey: 12000,
-            AVNumberOfChannelsKey: 1,
-            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
-        ]
-        
-        do {
+            let settings = [
+                AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+                AVSampleRateKey: 12000,
+                AVNumberOfChannelsKey: 1,
+                AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+            ]
+
             audioRecorder = try AVAudioRecorder(url: audioFilename, settings: settings)
             audioRecorder.delegate = self
-            audioRecorder.record()
             
-            print(self)
-            print("recording")
+            resolve(true)
         } catch {
             finishRecording(success: false)
+            reject("recorder_setup_failure", "Could not setup audio recorder", nil)
         }
         
-        print("start")
+    }
+    
+    @objc(start)
+    func start() -> Void {
+        if audioRecorder != nil {
+            audioRecorder.record()
+        }
     }
 
     func finishRecording(success: Bool) {
         if audioRecorder != nil {
-            audioRecorder?.stop()
+            audioRecorder.stop()
             audioRecorder = nil
         }
 
