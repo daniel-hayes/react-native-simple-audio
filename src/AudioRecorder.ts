@@ -1,27 +1,22 @@
 import { NativeModules } from 'react-native';
+import Audio from './Audio';
 
 const RCTAudioRecorder: NativeRecorder = NativeModules.AudioRecorder;
 
-interface StatusHandler {
-  (status: RecordingStatus): void
-};
-
-class AudioRecorder {
+class AudioRecorder extends Audio {
   fileName: string;
   status: RecordingStatus;
   private timeCounter!: NodeJS.Timer;
-  private statusHandler: StatusHandler;
 
   constructor(
     fileName: string,
-    statusHandler: any
+    statusHandler: StatusHandler
   ) {
+    super(statusHandler)
 
     this.timeCounter;
 
     this.fileName = fileName;
-
-    this.statusHandler = statusHandler;
 
     this.status = {
       ready: false,
@@ -37,16 +32,6 @@ class AudioRecorder {
     };
 
     this.statusHandler(this.status);
-  }
-
-  private formatTime = (timeInseconds: number) => {
-    const minutes = Math.floor(timeInseconds / 60);
-    const seconds = Math.floor(timeInseconds % 60);
-
-    return {
-      seconds: timeInseconds,
-      formatted: `${minutes}:${(seconds < 10 ? '0' : '') + seconds}`
-    }
   }
 
   private startTimer() {

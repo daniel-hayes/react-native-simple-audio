@@ -38,7 +38,13 @@ declare interface RecordingStatus {
   },
 }
 
+declare type AudioStatus = PlayerStatus | RecordingStatus;
+
 declare interface EventBody {
   eventName: string,
   value: any
+}
+
+declare interface StatusHandler {
+  (status: RecordingStatus): void
 }

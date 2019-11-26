@@ -1,4 +1,5 @@
 import { NativeEventEmitter, NativeModules, EventSubscriptionVendor } from 'react-native';
+import Audio from './Audio';
 
 const RCTAudioPlayer:
   NativePlayer & EventSubscriptionVendor = NativeModules.AudioPlayer;
@@ -29,14 +30,9 @@ enum SupportedEvents {
   playerInfo = 'playerInfo'
 };
 
-interface StatusHandler {
-  (status: PlayerStatus): void
-};
-
-class AudioPlayer {
+class AudioPlayer extends Audio {
   url: string;
   status: PlayerStatus;
-  private statusHandler: StatusHandler;
   private eventEmitter: NativeEventEmitter | undefined;
 
   constructor(
@@ -44,9 +40,9 @@ class AudioPlayer {
     statusHandler: StatusHandler,
     eventEmitter: NativeEventEmitter = new NativeEventEmitter(RCTAudioPlayer)
   ) {
-    this.url = url;
+    super(statusHandler);
 
-    this.statusHandler = statusHandler;
+    this.url = url;
 
     this.eventEmitter = eventEmitter;
 
@@ -59,25 +55,6 @@ class AudioPlayer {
       progress: 0,
       percentLoaded: 0
     };
-  }
-
-  setStatus(changes: PlayerStatus) {
-    this.status = {
-      ...this.status,
-      ...changes
-    };
-
-    this.statusHandler(this.status);
-  }
-
-  private formatTime = (timeInseconds: number) => {
-    const minutes = Math.floor(timeInseconds / 60);
-    const seconds = Math.floor(timeInseconds % 60);
-
-    return {
-      seconds: timeInseconds,
-      formatted: `${minutes}:${(seconds < 10 ? '0' : '') + seconds}`
-    }
   }
 
   private progressPercentage = (currentTimeInSeconds: number, duration: number) => {
