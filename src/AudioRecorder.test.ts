@@ -16,7 +16,6 @@ jest.mock('react-native', () => {
 jest.useFakeTimers();
 
 describe('AudioRecorder', () => {
-  const statusHandler = jest.fn();
   let recorder: AudioRecorder;
 
   beforeAll(() => {
@@ -24,8 +23,7 @@ describe('AudioRecorder', () => {
   });
 
   beforeEach(() => {
-    recorder = new AudioRecorder('myfile', statusHandler);
-    statusHandler.mockReset();
+    recorder = new AudioRecorder('myfile', jest.fn());
   });
 
   describe('prepare', () => {
