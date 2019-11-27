@@ -33,15 +33,6 @@ const useAudioRecorder = () => {
     }
   }, [status]);
 
-  // // call on unmount
-  // useEffect(() => (
-  //   () => {
-  //     if (recorder.destroy) {
-  //       recorder.destroy();
-  //     }
-  //   }
-  // ), [recorder]);
-
   const recorderController = {
     status,
     fileName: recorder.fileName,
