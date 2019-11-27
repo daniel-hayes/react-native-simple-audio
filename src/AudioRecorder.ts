@@ -26,15 +26,6 @@ class AudioRecorder extends Audio {
     };
   }
 
-  setStatus(changes: RecordingStatus) {
-    this.status = {
-      ...this.status,
-      ...changes
-    };
-
-    this.statusHandler(this.status);
-  }
-
   private startTimer() {
     // takes a second to fire so start with 1
     let time = 1;
@@ -66,13 +57,16 @@ class AudioRecorder extends Audio {
     if (!this.status.recording) {
       RCTAudioRecorder.start();
       this.startTimer();
-      this.setStatus({ recording: true });
+      this.setStatus({
+        recording: true,
+        finished: false
+      });
     } else {
       RCTAudioRecorder.stop();
       this.clearTimer();
       this.setStatus({
         recording: false,
-        finished: true // @TODO figure out a way to reset the player whend one
+        finished: true
       });
     }
   };
