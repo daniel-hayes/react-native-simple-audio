@@ -44,6 +44,7 @@ const useAudioRecorder = () => {
 
   const recorderController = {
     status,
+    fileName: recorder.fileName,
     toggleRecording: recorder.toggleRecording
   };
 

@@ -21,6 +21,7 @@ class AudioRecorder extends Audio {
     this.status = {
       ready: false,
       recording: false,
+      finished: false,
       currentTime: this.formatTime(0)
     };
   }
@@ -61,16 +62,18 @@ class AudioRecorder extends Audio {
     }
   };
 
-  toggleRecording = () => {
+  toggleRecording = async () => {
     if (!this.status.recording) {
       RCTAudioRecorder.start();
-      // @TODO should these be promise based so timing is ok ^?
-      this.setStatus({ recording: true });
       this.startTimer();
+      this.setStatus({ recording: true });
     } else {
       RCTAudioRecorder.stop();
-      this.setStatus({ recording: false });
       this.clearTimer();
+      this.setStatus({
+        recording: false,
+        finished: true // @TODO figure out a way to reset the player whend one
+      });
     }
   };
 }

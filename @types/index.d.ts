@@ -32,6 +32,7 @@ declare interface PlayerStatus {
 declare interface RecordingStatus {
   ready?: boolean,
   recording?: boolean,
+  finished?: boolean,
   currentTime?: {
     seconds: number,
     formatted: string
