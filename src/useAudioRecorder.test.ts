@@ -20,7 +20,7 @@ describe('useAudioRecorder', () => {
     });
 
     const { result, waitForNextUpdate } = renderHook(() =>
-      useAudioRecorder()
+      useAudioRecorder('test-file')
     );
 
     expect(result.current[0].status).toMatchObject({ loading: true });
@@ -42,7 +42,7 @@ describe('useAudioRecorder', () => {
     });
 
     const { result, waitForNextUpdate } = renderHook(() =>
-      useAudioRecorder()
+      useAudioRecorder('test-file')
     );
 
     expect(result.current[0].status).toMatchObject({ loading: true });
@@ -60,7 +60,7 @@ describe('useAudioRecorder', () => {
     });
 
     const { result, waitForNextUpdate } = renderHook(() =>
-      useAudioRecorder()
+      useAudioRecorder('test-file')
     );
 
     expect(result.current[0].status).toMatchObject({ loading: true });

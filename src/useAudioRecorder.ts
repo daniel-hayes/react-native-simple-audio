@@ -3,7 +3,7 @@ import AudioRecorder from './AudioRecorder';
 
 export const recorderSetupError = 'There was a problem setting up the recorder';
 
-const useAudioRecorder = () => {
+const useAudioRecorder = (fileName: string) => {
   const [recorder, setRecorder] = useState({} as AudioRecorder);
   const [status, setStatus] = useState<PlayerStatus>({ loading: true });
   const [error, setError] = useState();
@@ -11,7 +11,7 @@ const useAudioRecorder = () => {
   useEffect(() => {
     async function createRecorder() {
       try {
-        const nativeRecorder = new AudioRecorder('TODO', setStatus);
+        const nativeRecorder = new AudioRecorder(fileName, setStatus);
 
         // wait for player to be created before returning
         await nativeRecorder.prepare();
