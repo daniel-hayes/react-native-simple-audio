@@ -82,7 +82,5 @@ export const Player = ({ url }) => {
 
 
 ## TODO
-- Add ability to seek through audio
 - Add full example
-- Add hook to record audio
 - Add Android functionality

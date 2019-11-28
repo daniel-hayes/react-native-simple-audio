@@ -4,7 +4,13 @@ declare interface NativePlayer {
   destroy(): void,
   prepare(url: string): string | void,
   seek(timeInSeconds: number): void,
-  jump(timeInSeconds: number, shouldJumpBackwards: boolean): void,
+  jump(timeInSeconds: number, shouldJumpBackwards: boolean): void
+}
+
+declare interface NativeRecorder {
+  prepare(url: string): Promise<boolean>,
+  start(): void,
+  stop(): void
 }
 
 declare interface PlayerStatus {
@@ -23,7 +29,23 @@ declare interface PlayerStatus {
   percentLoaded?: number
 }
 
+declare interface RecordingStatus {
+  ready?: boolean,
+  recording?: boolean,
+  finished?: boolean,
+  currentTime?: {
+    seconds: number,
+    formatted: string
+  },
+}
+
+declare type AudioStatus = PlayerStatus | RecordingStatus;
+
 declare interface EventBody {
   eventName: string,
   value: any
+}
+
+declare interface StatusHandler {
+  (status: RecordingStatus): void
 }

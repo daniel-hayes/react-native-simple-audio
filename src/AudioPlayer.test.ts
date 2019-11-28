@@ -22,28 +22,11 @@ jest.mock('react-native', () => {
 });
 
 describe('AudioPlayer', () => {
-  const statusHandler = jest.fn();
   let NativeEventEmitterMock = new NativeEventEmitter(NativeModules.AudioPlayer);
   let player: AudioPlayer;
 
   beforeEach(() => {
-    player = new AudioPlayer('foo.mp3', statusHandler, NativeEventEmitterMock);
-    statusHandler.mockReset();
-  });
-
-  describe('setStatus', () => {
-    it('should update local status', () => {
-      const initialStatus = player.status;
-      const updatedStatus = { ready: true }
-      player.setStatus(updatedStatus);
-      expect(player.status).not.toEqual(initialStatus);
-      expect(player.status).toEqual({ ...initialStatus, ...updatedStatus });
-    });
-
-    it('should call the status handler', () => {
-      player.setStatus({});
-      expect(statusHandler).toHaveBeenCalledWith(player.status);
-    });
+    player = new AudioPlayer('foo.mp3', jest.fn(), NativeEventEmitterMock);
   });
 
   describe('toggleAudio', () => {
@@ -137,23 +120,6 @@ describe('AudioPlayer', () => {
         playing: false,
         loading: false
       });
-    });
-  });
-
-  describe('formatTime', () => {
-    it('returns a duration under a minute', () => {
-      // @ts-ignore
-      expect(player.formatTime(10)).toEqual({ seconds: 10, formatted: '0:10' });
-    });
-
-    it('returns a duration over a minute', () => {
-      // @ts-ignore
-      expect(player.formatTime(61)).toEqual({ seconds: 61, formatted: '1:01' });
-    });
-
-    it('returns a long duration', () => {
-      // @ts-ignore
-      expect(player.formatTime(4004)).toEqual({ seconds: 4004, formatted: '66:44' });
     });
   });
 

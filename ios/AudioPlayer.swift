@@ -64,13 +64,20 @@ class AudioPlayer: RCTEventEmitter {
     
     @objc(prepare:)
     func prepare(path: String) -> String? {
-        guard let url = URL(string: path) else {
-            // handle error
-            return "Not a valid url path"
+
+        if AudioUtils.isRemoteUrl(path: path) {
+            guard let url = URL(string: path) else {
+                // handle error
+                return "Not a valid url path"
+            }
+
+            asset = AVAsset(url: url)
+        } else if AudioUtils.localFileExists(fileName: path) {
+            let localUrl = AudioUtils.getFilePath(fileName: path)
+            asset = AVAsset(url: localUrl)
+        } else {
+            return "Nothing to play"
         }
-        
-        // Create asset to be played
-        asset = AVAsset(url: url)
         
         // Create a new AVPlayerItem with the asset and an
         // array of asset keys to be automatically loaded
