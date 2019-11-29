@@ -50,6 +50,7 @@ class AudioPlayer extends Audio {
       ready: false,
       playing: false,
       loading: false,
+      finished: false,
       duration: this.formatTime(0),
       currentTime: this.formatTime(0),
       progress: 0,
@@ -83,10 +84,12 @@ class AudioPlayer extends Audio {
 
     if (body.eventName === PlayerInfo.currentTime) {
       const currentTimeInSeconds = body.value;
+      const progress = this.progressPercentage(currentTimeInSeconds, this.status.duration!.seconds);
 
       this.setStatus({
         currentTime: this.formatTime(currentTimeInSeconds),
-        progress: this.progressPercentage(currentTimeInSeconds, this.status.duration!.seconds)
+        finished: progress === 100,
+        progress
       });
     }
 

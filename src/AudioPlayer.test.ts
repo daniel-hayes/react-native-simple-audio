@@ -161,6 +161,16 @@ describe('AudioPlayer', () => {
       expect(player.status.progress).toBeDefined();
     });
 
+    it('should update status when done playing', () => {
+      player.status.duration = { seconds: 60, formatted: '' };
+      expect(player.status.finished).toBe(false);
+      // @ts-ignore
+      // duration is equal to currentTime
+      player.handlePlayerInfo({ eventName: 'currentTime', value: 60 })
+      expect(player.status.finished).toBe(true);
+    });
+
+
     it('should set the percent loaded', () => {
       expect(player.status.percentLoaded).toBe(0)
 

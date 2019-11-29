@@ -17,6 +17,7 @@ declare interface PlayerStatus {
   ready?: boolean,
   playing?: boolean,
   loading?: boolean,
+  finished?: boolean,
   currentTime?: {
     seconds: number,
     formatted: string
